@@ -11,6 +11,12 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../components/Pagination";
 
 const ShopPage = () => {
+    const param = useLocation();
+    const query = new URLSearchParams(param.search);
+    const page = parseInt(query.get('page') || '1', 10);
+    const itemsPerPage = 10;
+    const [totalPage, setTotalPage] = useState(1)
+
     const navigate = useNavigate()
     // let param = useLocation().pathname.split("/").at(2);
     const { id_category } = useParams();
@@ -37,48 +43,72 @@ const ShopPage = () => {
     // }
 
     const handleAddCart = async (id, amount) => {
-        console.log("id test:", id)
-        console.log("quantity test:", amount)
-        const body = {
-            productDetailID: id,
-            quantity: amount
+        try {
+            console.log("id test:", id)
+            console.log("quantity test:", amount)
+            const body = {
+                productDetailID: id,
+                quantity: amount
+            }
+            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/update`, body);
+            console.log("result :", result)
+            setShow(false)
+            return result
+        } catch (error) {
+            
         }
-        const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/update`, body);
-        console.log("result :", result)
-        setShow(false)
-        return result
     }
 
     const handleSearch = async (e) => {
 
     }
-    async function getProduct() {
-        let myList = null
-        if (id_category)
-            myList = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/get-option/${id_category}`)
-        else
-            myList = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product`)
-        console.log(myList)
-        setLoad(true);
-        setList(myList?.data.data.items)
-    }
+   useEffect(() => {
+        const getProduct = async () => {
+            try {
+                const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product`,
+                    {
+                        params: {
+                            page,
+                            itemsPerPage
+                        }
+                    })
+
+                setLoad(true);
+                console.log("API response:", result?.data?.data);
+                setList(result?.data?.data.items)
+                setTotalPage(result?.data?.data?.totalPages)
+                // console.log("tổng số trang:",result?.data?.data?.totalPages)
+            } catch (error) {
+
+            }
+        }
+        getProduct()
+    }, [page]);
 
     async function getCategory() {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/category`)
-        console.log("result", result?.data.data.items)
-        setLoad(true);
-        setListCate(result?.data.data.items)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/category`)
+            console.log("result", result?.data.data.items)
+            setLoad(true);
+            setListCate(result?.data.data.items)
+        } catch (error) {
+            
+        }
     }
 
     async function getDetails(id) {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
-        console.log("KQ :", result)
-        setStatus(1)
-        setLoad(true);
-        setLoadSize(true)
-        setProductSelected(result?.data?.data)
-        setSizeAvail(result?.data?.data.detailInventory)
-        console.log("KQ:", result?.data?.data.detailInventory)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
+            console.log("KQ :", result)
+            setStatus(1)
+            setLoad(true);
+            setLoadSize(true)
+            setProductSelected(result?.data?.data)
+            setSizeAvail(result?.data?.data.detailInventory)
+            console.log("KQ:", result?.data?.data.detailInventory)
+        } catch (error) {
+            
+        }
     }
 
     const handleClose = () => {
@@ -174,28 +204,31 @@ const ShopPage = () => {
     }
 
     const buyNow = (e) => {
-        const tmp = {};
-        if (item.color && item.size) {
-            const newItem = productDetail.find(i => i?.color === item.color && i?.size == item.size)
-            if (newItem) {
-                if (newItem?.current_number < item?.sl || newItem?.current_number < 1)
-                    toast.error("Sản phẩm không đủ số lượng bạn cần! \n Vui lòng giảm số lượng!")
-                else {
-                    tmp.amount = item.sl ? item.sl : 1
-                    tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
-                    order.push(tmp)
-                    setOrder(order)
-                    navigate('/theorder', { state: order });
+        try {
+            const tmp = {};
+            if (item.color && item.size) {
+                const newItem = productDetail.find(i => i?.color === item.color && i?.size == item.size)
+                if (newItem) {
+                    if (newItem?.current_number < item?.sl || newItem?.current_number < 1)
+                        toast.error("Sản phẩm không đủ số lượng bạn cần! \n Vui lòng giảm số lượng!")
+                    else {
+                        tmp.amount = item.sl ? item.sl : 1
+                        tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
+                        order.push(tmp)
+                        setOrder(order)
+                        navigate('/theorder', { state: order });
+                    }
                 }
-            }
-        } else
-            toast.error("Vui lòng chọn đủ thông tin")
+            } else
+                toast.error("Vui lòng chọn đủ thông tin")
+        } catch (error) {
+            
+        }
 
         e.preventDefault()
     }
 
     useEffect(() => {
-        getProduct();
         getCategory();
     }, []);
 
@@ -219,8 +252,6 @@ const ShopPage = () => {
                             </ul>
                         </div>
                         <div className="col-lg-10">
-
-
                             <div className="row">
                                 {list.map((item) => (
                                     <div className="col-md-3">
@@ -280,7 +311,7 @@ const ShopPage = () => {
                                                                 currency: 'VND'
                                                             })}</p>
                                                         </> :
-                                                        <p className="text-center mb-0 price_txt">{item.price.toLocaleString('vi', {
+                                                        <p className="text-center mb-0 price_txt">{item.price?.toLocaleString('vi', {
                                                             style: 'currency',
                                                             currency: 'VND'
                                                         })}</p>
@@ -294,6 +325,7 @@ const ShopPage = () => {
                             <div div="row">
 
                             </div>
+                            <Pagination  refix='shop' size={totalPage}/>
                         </div>
 
                     </div>
@@ -442,8 +474,6 @@ const ShopPage = () => {
                 <ReactLoading type={'bubbles'} color='#fffff' height={'33px'} width={'9%'} />
             </div>
         }
-
-        <Pagination page={list.page} count={list.totalPages} />
     </>)
 
 }

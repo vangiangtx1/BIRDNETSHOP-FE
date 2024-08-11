@@ -30,42 +30,62 @@ const HomePage = () => {
 
 
     const handleAddCart = async (id, amount) => {
-        const body = {
-            "productID": id,
-            "amount": amount
+        try {
+            const body = {
+                "productID": id,
+                "amount": amount
+            }
+            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/AddToCart`, body);
+            return result
+        } catch (error) {
+
         }
-        const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/AddToCart`, body);
-        return result
     }
 
     async function getProduct() {
-        const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product`);
-        setLoad(false);
-        setList(result?.data.data.items)
+        try {
+            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product`);
+            setLoad(false);
+            setList(result?.data.data.items)
+        } catch (error) {
+
+        }
     }
 
     async function getBestSeller() {
-        const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/best-selling`);
-        setLoadBestSell(false);
-        setBestSeller(result?.data.data)
+        try {
+            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/best-selling`);
+            setLoadBestSell(false);
+            setBestSeller(result?.data.data)
+        } catch (error) {
+
+        }
 
     }
 
     async function getCategory() {
-        const result = await axios.get(axios.defaults.baseURL + `/api/category`)
-        console.log("List category:",result)
-        setListCate(result?.data?.data.items)
+        try {
+            const result = await axios.get(axios.defaults.baseURL + `/api/category`)
+            console.log("List category:", result)
+            setListCate(result?.data?.data.items)
+        } catch (error) {
+
+        }
     }
 
     async function getDetails(id) {
-        const result = await axios.get(axios.defaults.baseURL + `/api/product/detail/${id}`)
-        console.log("KQ :",result)
-        setStatus(1)
-        setLoad(true);
-        setLoadSize(true)
-        setProductSelected(result?.data.data)
-        setSizeAvail(result?.data?.data.detailInventory)
-        console.log("KQ:",result?.data?.data.detailInventory)
+        try {
+            const result = await axios.get(axios.defaults.baseURL + `/api/product/detail/${id}`)
+            console.log("KQ :", result)
+            setStatus(1)
+            setLoad(true);
+            setLoadSize(true)
+            setProductSelected(result?.data.data)
+            setSizeAvail(result?.data?.data.detailInventory)
+            console.log("KQ:", result?.data?.data.detailInventory)
+        } catch (error) {
+
+        }
     }
 
     const handleClose = () => {
@@ -99,24 +119,28 @@ const HomePage = () => {
     }
 
     const buyNow = (e) => {
-        const tmp = {};
-        if (item.color && item.size) {
-            const newItem = productDetail.find(i => i?.color === item.color && i?.size == item.size)
-            if (newItem) {
-                if (newItem?.current_number < item?.sl || newItem?.current_number < 1)
-                    toast.error("Sản phẩm không đủ số lượng bạn cần! \n Vui lòng giảm số lượng!")
-                else {
-                    tmp.amount = item.sl ? item.sl : 1
-                    tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
-                    order.push(tmp)
-                    setOrder(order)
-                    navigate('/theorder', { state: order });
+        try {
+            const tmp = {};
+            if (item.color && item.size) {
+                const newItem = productDetail.find(i => i?.color === item.color && i?.size == item.size)
+                if (newItem) {
+                    if (newItem?.current_number < item?.sl || newItem?.current_number < 1)
+                        toast.error("Sản phẩm không đủ số lượng bạn cần! \n Vui lòng giảm số lượng!")
+                    else {
+                        tmp.amount = item.sl ? item.sl : 1
+                        tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
+                        order.push(tmp)
+                        setOrder(order)
+                        navigate('/theorder', { state: order });
+                    }
                 }
-            }
-        } else
-            toast.error("Vui lòng chọn đủ thông tin")
+            } else
+                toast.error("Vui lòng chọn đủ thông tin")
 
-        e.preventDefault()
+            e.preventDefault()
+        } catch (error) {
+
+        }
     }
 
     const handleSubmitAdd = async (e) => {
@@ -237,7 +261,7 @@ const HomePage = () => {
                     <h3 class="h6 text-decoration-none">
                         ĐẶT HÀNG ONLINE VÀ KIỂM TRA ĐƠN HÀNG VUI LÒNG LIÊN HỆ
                     </h3>
-                    <p style={{marginLeft:"23px"}} class="content">Hotline: 012 345 6789.</p>
+                    <p style={{ marginLeft: "23px" }} class="content">Hotline: 012 345 6789.</p>
                 </div>
 
             </div>
@@ -331,10 +355,23 @@ const HomePage = () => {
                                                 <i className="text-muted fa fa-star"></i>
                                             </li>
                                         </ul>
-                                        <p className="text-center mb-0 price_txt">{item.price.toLocaleString('vi', {
-                                            style: 'currency',
-                                            currency: 'VND'
-                                        })}</p>
+                                        {
+                                            item?.promotionValue > 0 ?
+                                                <>
+                                                    <p className="text-center mb-0 text-decoration-line-through">{item.price.toLocaleString('vi', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    })}</p>
+                                                    <p className="text-center mb-0 price_txt">{(item?.price * (100 - item?.promotionValue) / 100).toLocaleString('vi', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    })}</p>
+                                                </> :
+                                                <p className="text-center mb-0 price_txt">{item.price.toLocaleString('vi', {
+                                                    style: 'currency',
+                                                    currency: 'VND'
+                                                })}</p>
+                                        }
                                         {/* <p className="text-center mb-0 price_txt">{item.price}</p> */}
                                     </div>
                                 </div>
@@ -401,11 +438,23 @@ const HomePage = () => {
                                                 <i className="text-muted fa fa-star"></i>
                                             </li>
                                         </ul>
-                                        <p className="text-center mb-0 price_txt">{item.price.toLocaleString('vi', {
-                                            style: 'currency',
-                                            currency: 'VND'
-                                        })}</p>
-                                        {/* <p className="text-center mb-0 price_txt">{item.price}</p> */}
+                                        {
+                                            item?.promotionValue > 0 ?
+                                                <>
+                                                    <p className="text-center mb-0 text-decoration-line-through">{item.price.toLocaleString('vi', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    })}</p>
+                                                    <p className="text-center mb-0 price_txt">{(item?.price * (100 - item?.promotionValue) / 100).toLocaleString('vi', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    })}</p>
+                                                </> :
+                                                <p className="text-center mb-0 price_txt">{item.price.toLocaleString('vi', {
+                                                    style: 'currency',
+                                                    currency: 'VND'
+                                                })}</p>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -422,31 +471,31 @@ const HomePage = () => {
 
         {/*<!--Start modal -->*/}
         <Modal show={show} onHide={handleClose} size={status ? "lg" : "sm"} centered>
-                    {status ?
-                        <Modal.Body>
-                            <div className="container pb-5">
-                                <div className="row">
-                                    <div className="col-lg-5 mt-5">
-                                        <div className="card mb-3">
-                                            <img className="card-img img-fluid"
-                                                 src={imgSelect}
-                                                 alt="Card image cap"
-                                                 id="product-detail"/>
-                                        </div>
+            {status ?
+                <Modal.Body>
+                    <div className="container pb-5">
+                        <div className="row">
+                            <div className="col-lg-5 mt-5">
+                                <div className="card mb-3">
+                                    <img className="card-img img-fluid"
+                                        src={imgSelect}
+                                        alt="Card image cap"
+                                        id="product-detail" />
+                                </div>
 
-                                    </div>
-                                    {/* <!-- col end --> */}
-                                    {<div className="col-lg-7 mt-5">
-                                        <div className="card">
-                                            <div className="card-body">
-                                                <h1 className="h2">{productDetail?.name}</h1>
-                                                <p className="h3 py-2 price_txt">{productDetail?.infoProduct?.price.toLocaleString('vi', {
-                                                
-                                                    style: 'currency',
-                                                    currency: 'VND'
-                                                })}</p>
-                                                {/* <p className="h3 py-2 price_txt">{productDetail?.infoProduct?.price}</p> */}
-                                                {/* <ul className="list-inline">
+                            </div>
+                            {/* <!-- col end --> */}
+                            {<div className="col-lg-7 mt-5">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <h1 className="h2">{productDetail?.name}</h1>
+                                        <p className="h3 py-2 price_txt">{productDetail?.infoProduct?.price.toLocaleString('vi', {
+
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        })}</p>
+                                        {/* <p className="h3 py-2 price_txt">{productDetail?.infoProduct?.price}</p> */}
+                                        {/* <ul className="list-inline">
                                                     <li className="list-inline-item">
                                                         <h6>Avaliable Color :</h6>
                                                     </li>
@@ -455,10 +504,10 @@ const HomePage = () => {
                                                     </li>
                                                 </ul> */}
 
-                                                {<Form>
-                                                    <input type="hidden" name="product-title" value="Activewear"/>
-                                                    <div className="row">
-                                                        {/* <div className="col-full">
+                                        {<Form>
+                                            <input type="hidden" name="product-title" value="Activewear" />
+                                            <div className="row">
+                                                {/* <div className="col-full">
                                                             <strong>Màu sắc </strong>
                                                             {<Form onChange={handleChangeColor}>
                                                                 {Array.from(colorAvail).map((i) =>
@@ -474,80 +523,80 @@ const HomePage = () => {
                                                             </Form>}
                                                         </div> */}
 
-                                                        <div className="col-full">
-                                                            <strong>Size</strong>
-                                                            {loadSize ? <Form onChange={handleChangeSize}>
-                                                                {sizeAvail?.map((i) =>
-                                                                    <Form.Check
-                                                                        inline
-                                                                        reverse
-                                                                        label={i?.size}
-                                                                        name="group_size"
-                                                                        type="radio"
-                                                                        id={i?.size}
-                                                                    />
-                                                                )}
-                                                            </Form>
-                                                            : null}
-                                                            {/* {loadSize ? <div>
+                                                <div className="col-full">
+                                                    <strong>Size</strong>
+                                                    {loadSize ? <Form onChange={handleChangeSize}>
+                                                        {sizeAvail?.map((i) =>
+                                                            <Form.Check
+                                                                inline
+                                                                reverse
+                                                                label={i?.size}
+                                                                name="group_size"
+                                                                type="radio"
+                                                                id={i?.size}
+                                                            />
+                                                        )}
+                                                    </Form>
+                                                        : null}
+                                                    {/* {loadSize ? <div>
                                                                     <strong>Có Size</strong>
                                                             </div>: <strong>Không Có Size</strong>} */}
-                                                        </div>
+                                                </div>
 
-                                                        <div className="col-full flex align-items-center pb-3">
-                                                            <div className="list-inline-item">Số lượng</div>
-                                                            <div className="count-input spinner_input">
+                                                <div className="col-full flex align-items-center pb-3">
+                                                    <div className="list-inline-item">Số lượng</div>
+                                                    <div className="count-input spinner_input">
 
-                                                                <InputSpinner
-                                                                    type={'int'}
-                                                                    precision={0}
-                                                                    max={100}
-                                                                    min={1}
-                                                                    step={1}
-                                                                    value={1}
-                                                                    onChange={handleChangeAmount}
-                                                                    variant={'info'}
-                                                                    size="sm"
-                                                                />
-                                                            </div>
-                                                        </div>
+                                                        <InputSpinner
+                                                            type={'int'}
+                                                            precision={0}
+                                                            max={100}
+                                                            min={1}
+                                                            step={1}
+                                                            value={1}
+                                                            onChange={handleChangeAmount}
+                                                            variant={'info'}
+                                                            size="sm"
+                                                        />
                                                     </div>
-                                                    <div className="row pb-3">
-                                                        <div className="col d-grid">
-                                                            <button className="btn btn-success btn-lg"
-                                                                    onClick={buyNow} value="buy">Mua ngay
-                                                            </button>
-                                                        </div>
-                                                        <div className="col d-grid">
-                                                            <button type="submit" className="btn btn-success btn-lg"
-                                                                    name="submit" onClick={handleSubmitAdd}>
-                                                                Giỏ hàng
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </Form>}
-
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>}
-                                </div>
-                            </div>
-                        </Modal.Body>
-                        :
-                        <Modal.Body>
-                            <div className="container pb-5">
-                                <img className="card-img img-fluid" src={imgSelect} width="400" alt="Card image cap"
-                                     id="product-detail"/>
-                            </div>
-                        </Modal.Body>
-                    }
-                    <Modal.Footer>
+                                            <div className="row pb-3">
+                                                <div className="col d-grid">
+                                                    <button className="btn btn-success btn-lg"
+                                                        onClick={buyNow} value="buy">Mua ngay
+                                                    </button>
+                                                </div>
+                                                <div className="col d-grid">
+                                                    <button type="submit" className="btn btn-success btn-lg"
+                                                        name="submit" onClick={handleSubmitAdd}>
+                                                        Giỏ hàng
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </Form>}
 
-                    </Modal.Footer>
-                </Modal>
+                                    </div>
+                                </div>
+                            </div>}
+                        </div>
+                    </div>
+                </Modal.Body>
+                :
+                <Modal.Body>
+                    <div className="container pb-5">
+                        <img className="card-img img-fluid" src={imgSelect} width="400" alt="Card image cap"
+                            id="product-detail" />
+                    </div>
+                </Modal.Body>
+            }
+            <Modal.Footer>
+
+            </Modal.Footer>
+        </Modal>
         {/*<!--End modal-->*/}
 
-        
+
     </>
 
 }

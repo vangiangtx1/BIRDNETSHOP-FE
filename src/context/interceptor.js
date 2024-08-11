@@ -2,7 +2,9 @@ import axios from "../api/axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const axiosApiInstance = axios.create({});
+const axiosApiInstance = axios.create({
+  withCredentials: true
+});
 
 axiosApiInstance.interceptors.request.use((config) => {
   let tokensData = JSON.parse(localStorage.getItem("tokens"));
@@ -23,7 +25,7 @@ axiosApiInstance.interceptors.request.use((config) => {
 axiosApiInstance.interceptors.response.use(
   response  => response,
   async (error) => {
-    if (error.response.status === false) {
+    if (error.response.status === true) {
       toast.error("Access Token đã hết hạn")
       const authData = JSON.parse(localStorage.getItem("tokens"));
      if(authData.data.refreshToken){

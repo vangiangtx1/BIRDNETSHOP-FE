@@ -27,11 +27,15 @@ const RecommendPage = () => {
         const [order, setOrder] = useState([])
 
         const handleAddCart = async (id, amount) => {
+            console.log("id test:", id)
+            console.log("quantity test:", amount)
             const body = {
-                "productID": id,
-                "amount": amount
+                productDetailID: id,
+                quantity: amount
             }
-            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/AddToCart`, body);
+            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/update`, body);
+            console.log("result :", result)
+            setShow(false)
             return result
         }
 
@@ -39,27 +43,34 @@ const RecommendPage = () => {
 
         }
         async function getProduct() {
-            const myList= await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/tags?nameTag=${param}`)
-
-            console.log(myList)
-            setLoad(true);
-            setList(myList?.data)
+            try {
+                const myList= await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/tags?nameTag=${param}`)
+                console.log(myList)
+                setLoad(true);
+                setList(myList?.data)
+            } catch (error) {
+                
+            }
         }
 
 
         async function getDetails(id) {
-            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
-            setStatus(1)
-            setLoad(true);
-            setLoadSize(false)
-            setProductSelected(result?.data)
-            setSizeAvail(result?.data)
-            const setColor = new Set()
-            result?.data?.forEach(i => {
-                setColor.add(i?.color)
-            })
-
-            setColorAvail(setColor)
+            try {
+                const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
+                setStatus(1)
+                setLoad(true);
+                setLoadSize(false)
+                setProductSelected(result?.data)
+                setSizeAvail(result?.data)
+                const setColor = new Set()
+                result?.data?.forEach(i => {
+                    setColor.add(i?.color)
+                })
+    
+                setColorAvail(setColor)
+            } catch (error) {
+                
+            }
         }
 
         const handleClose = () => {
@@ -121,17 +132,21 @@ const RecommendPage = () => {
         }
 
         const buyNow = (e) => {
-            const tmp = {};
-            if (item.color && item.size) {
-                tmp.amount = item.sl ? item.sl : 1
-                tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
-                order.push(tmp)
-                setOrder(order)
-                navigate('/theorder', {state: order});
-            } else {
-                toast.error("Vui lòng chọn đủ thông tin")
+            try {
+                const tmp = {};
+                if (item.color && item.size) {
+                    tmp.amount = item.sl ? item.sl : 1
+                    tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
+                    order.push(tmp)
+                    setOrder(order)
+                    navigate('/theorder', {state: order});
+                } else {
+                    toast.error("Vui lòng chọn đủ thông tin")
+                }
+                e.preventDefault()
+            } catch (error) {
+                
             }
-            e.preventDefault()
         }
 
         useEffect(() => {

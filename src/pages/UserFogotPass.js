@@ -11,22 +11,28 @@ import ReactLoading from 'react-loading';
 const ForgotPwsPage = () => {
     const navigate = useNavigate();
     const [load, setLoad] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const payload = {
-            email: (e.target.elements.email.value)
-        }
-        setLoad(true)
-        const result = await axios.post(axiosApiInstance.defaults.baseURL + '/api/auth/forgot-password', payload)
-        setLoad(false)
-        if (result.data.data.status) {
-            toast.success(result.data?.data?.message)
-            navigate("/login")
-        } else {
-            toast.error(result.data.data.message)
+        try {
+            const payload = {
+                email: (e.target.elements.email.value)
+            }
+            setLoad(true)
+            const result = await axios.post(axiosApiInstance.defaults.baseURL + '/api/auth/forgot-password', payload)
+            setLoad(false)
+            if (result.data.data.status) {
+                toast.success(result.data?.data?.message)
+                navigate("/login")
+            } else {
+                toast.error(result.data.data.message)
+            }
+        } catch (error) {
+            
         }
 
     }
+
     return <>
         {load ?
             <div className={"center loading"}>

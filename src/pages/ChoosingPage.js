@@ -20,22 +20,32 @@ const ChoosingPage = () => {
     const [load, setLoad] = useState(true);
     const [order, setOrder] = useState([])
     const [loadSize, setLoadSize] = useState(false);
-    const [price, setPrice] = useState(false);
+    const [price, setPrice] = useState('');
+    const [promotionValue, setPromotionValue] = useState('');
 
 
     async function getProductDetail() {
-        const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${param}`);
-        setProductDetail(result?.data?.data.detailInventory)
-        console.log("có không :",result?.data?.data)
-        setLoad(false)
-        setLoadSize(true)
-        setSizeAvail(result?.data?.data.detailInventory)
-        setPrice(result?.data?.data?.price)
+        try {
+            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${param}`);
+            setProductDetail(result?.data?.data)
+            console.log("có không :", result?.data?.data)
+            setLoad(false)
+            setLoadSize(true)
+            setSizeAvail(result?.data?.data.detailInventory)
+            setPrice(result?.data?.data?.price)
+            setPromotionValue(result?.data?.data?.promotionValue)
+        } catch (error) {
+
+        }
     }
 
     async function getProduct() {
-        const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/${param}`);
-        setProduct(result?.data?.data)
+        try {
+            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/product/${param}`);
+            setProduct(result?.data?.data)
+        } catch (error) {
+
+        }
     }
 
     useEffect(() => {
@@ -49,18 +59,22 @@ const ChoosingPage = () => {
 
 
     const handleAddCart = async (id, amount) => {
-        console.log("id test:",id)
-        console.log("quantity test:",amount)
-        const body = {
-            productDetailID: id,
-            quantity: amount
+        try {
+            console.log("id test:", id)
+            console.log("quantity test:", amount)
+            const body = {
+                productDetailID: id,
+                quantity: amount
+            }
+            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/cart/update`, body);
+            console.log("result :", result)
+            return result
+        } catch (error) {
+
         }
-        const result = await axios.post(axiosApiInstance.defaults.baseURL + `/api/cart/update`, body);
-        console.log("result :",result)
-        return result
     }
 
-    
+
 
     // const handleChangeColor = (e) => {
     //     item.color = e.target.id
@@ -70,36 +84,40 @@ const ChoosingPage = () => {
     const handleChangeSize = (e) => {
         item.size = e.target.id
         setItem(item)
-        console.log("id:",e.target.id)
+        console.log("id:", e.target.id)
     }
     const handleChangeAmount = (e) => {
         item.amount = e
         setItem(item)
-        console.log("SL là :",e)
+        console.log("SL là :", e)
     }
 
     const buyNow = (e) => {
-        const tmp = {};
-        if (item.color && item.size) {
-            tmp.amount = item.sl ? item.sl : 1
-            tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
-            order.push(tmp)
-            setOrder(order)
-            navigate('/theorder', { state: order });
-        } else {
-            toast.error("Vui lòng chọn đủ thông tin")
+        try {
+            const tmp = {};
+            if (item.color && item.size) {
+                tmp.amount = item.sl ? item.sl : 1
+                tmp.product = productDetail.find(i => i.color === item.color && i.size === item.size)
+                order.push(tmp)
+                setOrder(order)
+                navigate('/theorder', { state: order });
+            } else {
+                toast.error("Vui lòng chọn đủ thông tin")
+            }
+            e.preventDefault()
+        } catch (error) {
+
         }
-        e.preventDefault()
     }
 
 
 
     const handleSubmitAdd = async (e) => {
         e.preventDefault()
-        const newItem = productDetail.find(i => i.size === item.size)
-        console.log("New Item :",newItem)
+        const newItem = productDetail?.detailInventory.find(i => i.size === item.size)
+        console.log("New Item :", newItem)
         if (newItem) {
-            console.log("quantity:",item.amount)
+            console.log("quantity:", item.amount)
             if (newItem?.inventory < item?.amount || newItem?.inventory < 1)
                 toast.error("Sản phẩm không đủ số lượng bạn cần! \n Vui lòng giảm số lượng!")
             else {
@@ -112,7 +130,7 @@ const ChoosingPage = () => {
                 }
                 if (kq?.data?.status === 200) {
                     setItem({})
-                    toast.success("Sản phẩm đã được thêm vào giỏ hàng của bạn!", { position: "top-center" })
+                    toast.success("Sản phẩm đã được thêm vào giỏ hàng của bạn!")
                 } else {
                     toast.error("Thất bại! Vui lòng thử lại")
                 }
@@ -135,7 +153,7 @@ const ChoosingPage = () => {
                             <div class="col-lg-5 mt-5">
                                 <div class="card mb-3">
                                     <img class="card-img img-fluid"
-                                        src={product?.linkImg} alt="Card image cap"
+                                        src={productDetail?.linkImg} alt="Card image cap"
                                         id="product-detail" />
                                 </div>
 
@@ -144,15 +162,35 @@ const ChoosingPage = () => {
                             {<div class="col-lg-7 mt-5">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h1 class="h2">{product?.name}</h1>
+                                        <h1 class="h2">{productDetail?.name}</h1>
                                         {/* <p class="h3 py-2 price_txt">{product?.price.toLocaleString('vi', {
                                             style: 'currency',
                                             currency: 'VND'
                                         })}</p> */}
-                                       <p className="h3 py-2 price_txt">{price?.toLocaleString("vi", {
-                                                style: "currency",
-                                                currency: "VND",
-                                            })}</p>
+                                        {
+                                                    promotionValue > 0 ?                                                      
+                                                        <td>
+                                                            <div className="text-center">
+                                                                <div className="text-decoration-line-through text-muted mb-1">
+                                                                    {price.toLocaleString('vi', {
+                                                                        style: 'currency',
+                                                                        currency: 'VND'
+                                                                    })}
+                                                                </div>
+                                                                <div className="text-center mb-0 price_txt">
+                                                                    {(price * (100 - promotionValue) / 100).toLocaleString('vi', {
+                                                                        style: 'currency',
+                                                                        currency: 'VND'
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        :
+                                                        <td className="text-center mb-0 price_txt">{price.toLocaleString('vi', {
+                                                            style: 'currency',
+                                                            currency: 'VND'
+                                                        })}</td>
+                                                }
 
                                         {
                                             productDetail.length !== 0 ?

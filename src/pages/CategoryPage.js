@@ -18,10 +18,14 @@ const CategoryPage = () => {
     const [change, setChange] = useState(false);
 
     async function getCategory() {
-        const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/category`)
-        setLoad(true);
-        console.log("result:", result)
-        setList(result?.data?.data.items)
+        try {
+            const result = await axios.get(axiosApiInstance.defaults.baseURL + `/api/category`)
+            setLoad(true);
+            console.log("result:", result)
+            setList(result?.data?.data.items)
+        } catch (error) {
+
+        }
     }
 
     const handleInfo = (e) => {
@@ -40,29 +44,37 @@ const CategoryPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const payload = {
-            categoryCode: id,
-            categoryName: category_name
-        }
-        const query = form === "add" ? await axios.post(axiosApiInstance.defaults.baseURL + `/api/category`, payload) :
-            await axios.put(axiosApiInstance.defaults.baseURL + `/api/category/update/${id}`, payload)
-        if (query?.data?.status === 200)
-            toast.success(query?.data.message)
-        else
-            toast.error(query?.data?.message + "! Vui lòng thử lại")
-        setChange(!change)
-        setShow(false)
-    }
-
-    const handleDelete = async (e) => {
-        const confirm = window.confirm("Ngài có chắc chắn muốn xóa danh mục này? ");
-        if (confirm) {
-            const query = await axios.delete(axiosApiInstance.defaults.baseURL + `/api/category/delete/${e.currentTarget.id}`)
+        try {
+            const payload = {
+                categoryCode: id,
+                categoryName: category_name
+            }
+            const query = form === "add" ? await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/category`, payload) :
+                await axiosApiInstance.put(axiosApiInstance.defaults.baseURL + `/api/category/update/${id}`, payload)
             if (query?.data?.status === 200)
                 toast.success(query?.data.message)
             else
-                toast.error(query?.data.message + "! Vui lòng thử lại")
+                toast.error(query?.data?.message + "! Vui lòng thử lại")
             setChange(!change)
+            setShow(false)
+        } catch (error) {
+
+        }
+    }
+
+    const handleDelete = async (e) => {
+        try {
+            const confirm = window.confirm("Ngài có chắc chắn muốn xóa danh mục này? ");
+            if (confirm) {
+                const query = await axiosApiInstance.delete(axiosApiInstance.defaults.baseURL + `/api/category/delete/${e.currentTarget.id}`)
+                if (query?.data?.status === 200)
+                    toast.success(query?.data.message)
+                else
+                    toast.error(query?.data.message + "! Vui lòng thử lại")
+                setChange(!change)
+            }
+        } catch (error) {
+
         }
     }
 

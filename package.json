@@ -60,5 +60,6 @@
     "node": "14.17.3",
     "npm": "6.14.13"
   },
-  "stack": "heroku-20"
+  "stack": "heroku-20",
+  "proxy": "https://api.cloudinary.com"
 }

@@ -27,31 +27,43 @@ const InfoUser = () => {
     let feeShip = 30000
 
     async function getProfile() {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/user/profile`);
-        setLoad(true)
-        setProfile(result?.data?.data?.data)
-        console.log("test :",)
-        setTmpGender(result?.data?.data?.data.gender)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/user/profile`);
+            setLoad(true)
+            setProfile(result?.data?.data?.data)
+            console.log("test :",)
+            setTmpGender(result?.data?.data?.data.gender)
+        } catch (error) {
+
+        }
     }
 
     async function handleCancel(e) {
-        const confirm = window.confirm("Ngài có chắc chắn muốn hủy đơn? ");
-        if (confirm) {
-            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/order/cancel-order/${e.currentTarget.id}`);
-            if (result?.data?.status === 200) {
-                toast.success(result?.data?.message)
-            } else {
-                toast.error(result.data.message)
+        try {
+            const confirm = window.confirm("Ngài có chắc chắn muốn hủy đơn? ");
+            if (confirm) {
+                const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + `/api/order/cancel-order/${e.currentTarget.id}`);
+                if (result?.data?.status === 200) {
+                    toast.success(result?.data?.message)
+                } else {
+                    toast.error(result.data.message)
+                }
             }
+            await getOrder();
+        } catch (error) {
+
         }
-        await getOrder();
     }
 
     async function getOrder() {
-        setLoad(false)
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/order/history/${tmp}`);
-        setLoad(true)
-        setOrder(result?.data?.data)
+        try {
+            setLoad(false)
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/order/history/${tmp}`);
+            setLoad(true)
+            setOrder(result?.data?.data)
+        } catch (error) {
+
+        }
     }
 
 
@@ -80,13 +92,16 @@ const InfoUser = () => {
     }
 
     const updateProfile = async () => {
-        console.log(infoChange)
-        if (Object.keys(infoChange).length !== 0) {
-            const result = await axiosApiInstance.put(axiosApiInstance.defaults.baseURL + `/api/user/profile`, infoChange)
-            if (result?.data.status === 200)
-                toast.success("Thông tin đã được cập nhật")
-            else
-                toast.error("Cập nhật thất bại!")
+        try {
+            console.log(infoChange)
+            if (Object.keys(infoChange).length !== 0) {
+                const result = await axiosApiInstance.put(axiosApiInstance.defaults.baseURL + `/api/user/profile`, infoChange)
+                if (result?.data.status === 200)
+                    toast.success("Thông tin đã được cập nhật")
+                else
+                    toast.error("Cập nhật thất bại!")
+            }
+        } catch (error) {
 
         }
     }

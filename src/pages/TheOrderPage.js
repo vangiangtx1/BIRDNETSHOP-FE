@@ -39,24 +39,28 @@ const TheOrderPage = () => {
         setPayment(1);
     };
     async function getProfile() {
-        const result = await axiosApiInstance.get(
-            axiosApiInstance.defaults.baseURL + `/api/user/profile`
-        );
-        console.log("user:", result);
-        setLoad(true);
-        const data = result?.data?.data.data;
-        setProfile(data);
-
-        setName(
-            (data?.firstName ? data.firstName : "") +
-            " " +
-            (data?.lastName ? data.lastName : "")
-        );
-        setPhone(data?.phone);
-
-        order.address = data?.address;
-        setAddressShow(data?.address);
-        setOrder(order);
+        try {
+            const result = await axiosApiInstance.get(
+                axiosApiInstance.defaults.baseURL + `/api/user/profile`
+            );
+            console.log("user:", result);
+            setLoad(true);
+            const data = result?.data?.data.data;
+            setProfile(data);
+    
+            setName(
+                (data?.firstName ? data.firstName : "") +
+                " " +
+                (data?.lastName ? data.lastName : "")
+            );
+            setPhone(data?.phone);
+    
+            order.address = data?.address;
+            setAddressShow(data?.address);
+            setOrder(order);
+        } catch (error) {
+            
+        }
     }
 
     const handleInfor = () => {
@@ -76,39 +80,43 @@ const TheOrderPage = () => {
     };
 
     const handleConfirmOrder = async () => {      
-        const productOrder = [];
-        cart.forEach((i) => {
-            productOrder.push({ productDetailId: i?.product?.detailInventory?.find(inv => inv.size === i.size).detailId, quantity: i.quantity, price: (i?.product?.price * (100 - i?.product?.promotionValue) / 100)});
-        });
-        const payload = {
-            nameReceiver: nameReceiver,
-            addressReceiver: address,
-            phoneReceiver: phoneReceiver,
-            note: "nhanh",
-            orderItems: productOrder,
-        };
-
-        if (
-            payload.addressReceiver &&
-            payload.phoneReceiver &&
-            payload.nameReceiver &&
-            payload.note
-        ) {
-            const result = await axiosApiInstance.post(
-                axiosApiInstance.defaults.baseURL + `/api/order`,
-                payload
-            );
-            if (result?.data.status == 200) {
-                toast.success(result?.data?.message);
-                setTimeout(() => {
-                    navigate('/');
-                  }, 2000);
+        try {
+            const productOrder = [];
+            cart.forEach((i) => {
+                productOrder.push({ productDetailId: i?.product?.detailInventory?.find(inv => inv.size === i.size).detailId, quantity: i.quantity, price: (i?.product?.price * (100 - i?.product?.promotionValue) / 100)});
+            });
+            const payload = {
+                nameReceiver: nameReceiver,
+                addressReceiver: address,
+                phoneReceiver: phoneReceiver,
+                note: "nhanh",
+                orderItems: productOrder,
+            };
+    
+            if (
+                payload.addressReceiver &&
+                payload.phoneReceiver &&
+                payload.nameReceiver &&
+                payload.note
+            ) {
+                const result = await axiosApiInstance.post(
+                    axiosApiInstance.defaults.baseURL + `/api/order`,
+                    payload
+                );
+                if (result?.data.status == 200) {
+                    toast.success(result?.data?.message);
+                    setTimeout(() => {
+                        navigate('/');
+                      }, 2000);
+                } else {
+                    toast.success("Vui lòng kiểm tra thông tin! " + result?.data.message);
+                }
             } else {
-                toast.success("Vui lòng kiểm tra thông tin! " + result?.data.message);
+                console.log("product order:", payload);
+                toast.error("Vui lòng nhập đầy đủ thông tin!");
             }
-        } else {
-            console.log("product order:", payload);
-            toast.error("Vui lòng nhập đầy đủ thông tin!");
+        } catch (error) {
+            
         }
     };
     useEffect(async () => {

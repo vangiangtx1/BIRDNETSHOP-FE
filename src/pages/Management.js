@@ -71,19 +71,27 @@ const Management = () => {
 
 
         async function getOrder() {
-            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/admin-order`, {params: param});
-            setListOrder(result?.data?.data?.items);
-            console.log("list order:",result?.data?.data?.items)
-            setLoad(true);
-            setLoadData(true)
+            try {
+                const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/admin-order`, {params: param});
+                setListOrder(result?.data?.data?.items);
+                console.log("list order:",result?.data?.data?.items)
+                setLoad(true);
+                setLoadData(true)
+            } catch (error) {
+                
+            }
         }
 
         async function getOrderDetail(id) {
-            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/admin-order/${id}`);
-            setOrderSelected(result?.data?.data);
-            console.log("list order:",result?.data?.data)
-            setLoad(true);
-            setLoadData(true)
+            try {
+                const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/admin-order/${id}`);
+                setOrderSelected(result?.data?.data);
+                console.log("list order:",result?.data?.data)
+                setLoad(true);
+                setLoadData(true)
+            } catch (error) {
+                
+            }
         }
 
         const handleShow = (orderId) => {
@@ -94,30 +102,17 @@ const Management = () => {
         }
 
         const handleConfirm = async (e) => {
-            console.log("id order :",orderSelected.orderId)
-            let query = null;
-            if (e.target.id === "bt1")
-                query = `/api/admin-order/confirm/${orderSelected.orderId}`
-            if (e.target.id === "bt2")
-                query = `/api/admin-order/delivery/${orderSelected.orderId}`
-            if (e.target.id === "bt3")
-                query = `/api/admin-order/done/${orderSelected.orderId}`
-
-            const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + query);
-            if (result.data.status) {
-                toast.success(result.data.message)
-                setRand(rand + 1)
-                setShow(false)
-            } else {
-                toast.error(result.data.message)
-            }
-        };
-        const handleCancelOrder = async () => {
-            const confirm = window.confirm("Hủy đơn sẽ ảnh hưởng rất lớn đến khách hàng \n" +
-                "Vui lòng hỏi ý kiến của khách hàng trước khi hủy \n " +
-                "Xác nhận hủy đơn ? ");
-            if (confirm) {
-                const result = await axiosApiInstance.delete(axiosApiInstance.defaults.baseURL + `/api/admin/order/cancel_order/${orderSelected.orderId}`);
+            try {
+                console.log("id order :",orderSelected.orderId)
+                let query = null;
+                if (e.target.id === "bt1")
+                    query = `/api/admin-order/confirm/${orderSelected.orderId}`
+                if (e.target.id === "bt2")
+                    query = `/api/admin-order/delivery/${orderSelected.orderId}`
+                if (e.target.id === "bt3")
+                    query = `/api/admin-order/done/${orderSelected.orderId}`
+    
+                const result = await axiosApiInstance.post(axiosApiInstance.defaults.baseURL + query);
                 if (result.data.status) {
                     toast.success(result.data.message)
                     setRand(rand + 1)
@@ -125,7 +120,28 @@ const Management = () => {
                 } else {
                     toast.error(result.data.message)
                 }
+            } catch (error) {
+                
             }
+        };
+        const handleCancelOrder = async () => {
+           try {
+             const confirm = window.confirm("Hủy đơn sẽ ảnh hưởng rất lớn đến khách hàng \n" +
+                 "Vui lòng hỏi ý kiến của khách hàng trước khi hủy \n " +
+                 "Xác nhận hủy đơn ? ");
+             if (confirm) {
+                 const result = await axiosApiInstance.delete(axiosApiInstance.defaults.baseURL + `/api/admin/order/cancel_order/${orderSelected.orderId}`);
+                 if (result.data.status) {
+                     toast.success(result.data.message)
+                     setRand(rand + 1)
+                     setShow(false)
+                 } else {
+                     toast.error(result.data.message)
+                 }
+             }
+           } catch (error) {
+            
+           }
 
         };
 

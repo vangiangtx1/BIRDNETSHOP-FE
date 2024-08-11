@@ -30,91 +30,111 @@ const PromotionPage = () => {
     };
 
     async function getProduct() {
-        const result = await axiosApiInstance.get(
-            axiosApiInstance.defaults.baseURL + `/api/product`
-        );
-        let listTMP = [];
-        result?.data?.data.items.forEach((element) => {
-            const { id, name, linkImg } = element;
-            listTMP.push({ id, name, linkImg, status: false });
-        });
-        setAllProduct(listTMP);
-        setLoad(true);
+       try {
+         const result = await axiosApiInstance.get(
+             axiosApiInstance.defaults.baseURL + `/api/product`
+         );
+         let listTMP = [];
+         result?.data?.data.items.forEach((element) => {
+             const { id, name, linkImg } = element;
+             listTMP.push({ id, name, linkImg, status: false });
+         });
+         setAllProduct(listTMP);
+         setLoad(true);
+       } catch (error) {
+        
+       }
     }
 
     const ClickShowProduct = async (e) => {
-        setShowDetail(true);
-        const tmpID = parents(e.target).find(function (c) {
-            return c.tagName === "TR";
-        }).children[0].innerText;
-        setId(tmpID);
-        const re = await axiosApiInstance.get(
-            axiosApiInstance.defaults.baseURL + `/api/product/list-promotion/${tmpID}`
-        );
-        setListProductApply(re.data.data);
-
-        var listNew = [];
-        listAllProduct.forEach((item) => {
-            var st = false;
-            re.data.data.forEach((i) => {
-                if (i[0] === item.id) st = true;
+        try {
+            setShowDetail(true);
+            const tmpID = parents(e.target).find(function (c) {
+                return c.tagName === "TR";
+            }).children[0].innerText;
+            setId(tmpID);
+            const re = await axiosApiInstance.get(
+                axiosApiInstance.defaults.baseURL + `/api/product/list-promotion/${tmpID}`
+            );
+            setListProductApply(re.data.data);
+    
+            var listNew = [];
+            listAllProduct.forEach((item) => {
+                var st = false;
+                re.data.data.forEach((i) => {
+                    if (i[0] === item.id) st = true;
+                });
+                if (st) item.status = true;
+                else item.status = false;
+                listNew.push(item);
             });
-            if (st) item.status = true;
-            else item.status = false;
-            listNew.push(item);
-        });
-        setListProductApply(listNew);
+            setListProductApply(listNew);
+        } catch (error) {
+            
+        }
     };
     const ClickDeletePromotion = async (e) => {
-        const tmpID = parents(e.target).find(function (c) {
-            return c.tagName === "TR";
-        }).children[0].innerText;
-        const urlForm = `/api/admin/promotion/${tmpID}`;
-        const re = await axiosApiInstance.delete(
-            axiosApiInstance.defaults.baseURL + urlForm
-        );
-        if (re.data.status === 200) {
-            toast.success("Khuyến mãi đã được xóa");
-            await getPromotion();
-            setShow(false);
-        } else toast.error("Khuyến mãi đã được sử dụng. Không thể xóa");
+        try {
+            const tmpID = parents(e.target).find(function (c) {
+                return c.tagName === "TR";
+            }).children[0].innerText;
+            const urlForm = `/api/admin/promotion/${tmpID}`;
+            const re = await axiosApiInstance.delete(
+                axiosApiInstance.defaults.baseURL + urlForm
+            );
+            if (re.data.status === 200) {
+                toast.success("Khuyến mãi đã được xóa");
+                await getPromotion();
+                setShow(false);
+            } else toast.error("Khuyến mãi đã được sử dụng. Không thể xóa");
+        } catch (error) {
+            
+        }
     };
     async function getPromotion() {
-        const result = await axiosApiInstance.get(
-            axiosApiInstance.defaults.baseURL + `/api/promotion`
-        );
-        setLoad(true);
-        setListPromotion(result?.data.data);
-        console.log(result.data);
+        try {
+            const result = await axiosApiInstance.get(
+                axiosApiInstance.defaults.baseURL + `/api/promotion`
+            );
+            setLoad(true);
+            setListPromotion(result?.data.data);
+            console.log(result.data);
+        } catch (error) {
+            
+        }
     }
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        let startDate = promotion_startDate + "T00:00:00.740Z";
-        let endDate = promotion_endDate + "T23:59:00.740Z";
-        //"2023-05-29T09:54:17.740Z"
-        const body = {
-            promotionName: promotion_name,
-            description: promotion_description,
-            startDate: startDate,
-            endDate: endDate,
-            listApply: [
-                {
-                    productId: promotion_id,
-                    value: promotion_value,
-                },
-            ],
-        };
-
-        const urlForm = `/api/promotion`;
-        const re = await axiosApiInstance.post(
-            axiosApiInstance.defaults.baseURL + urlForm,
-            body
-        );
-        if (re.status === 200) {
-            toast.success("Thêm khuyến mãi thành công");
-            await getPromotion();
-            setShow(false);
-        } else toast.error("Thêm khuyến mãi không thành công! Thử lại ");
+        try {
+            e.preventDefault();
+            let startDate = promotion_startDate + "T00:00:00.740Z";
+            let endDate = promotion_endDate + "T23:59:00.740Z";
+            //"2023-05-29T09:54:17.740Z"
+            const body = {
+                promotionName: promotion_name,
+                description: promotion_description,
+                startDate: startDate,
+                endDate: endDate,
+                listApply: [
+                    {
+                        productId: promotion_id,
+                        value: promotion_value,
+                    },
+                ],
+            };
+    
+            const urlForm = `/api/promotion`;
+            const re = await axiosApiInstance.post(
+                axiosApiInstance.defaults.baseURL + urlForm,
+                body
+            );
+            if (re.status === 200) {
+                toast.success("Thêm khuyến mãi thành công");
+                await getPromotion();
+                setShow(false);
+            } else toast.error("Thêm khuyến mãi không thành công! Thử lại ");
+        } catch (error) {
+            
+        }
     };
 
     function parents(node) {
@@ -130,22 +150,26 @@ const PromotionPage = () => {
         return list;
     }
     const handleCheck = (e) => {
-        console.log(e.target.title);
-        console.log(promotion_id);
-        var body = {
-            promotionID: promotion_id,
-            listProductID: [e.target.title],
-        };
-        const re = axiosApiInstance.post("/api/admin/promotion/addProduct", body);
-        console.log(re.data);
-        var listNew = [];
-        listAllProduct.forEach((item) => {
-            if (e.target.title == item.id) {
-                item.status = !item.status;
-            }
-            listNew.push(item);
-        });
-        setListProductApply(listNew);
+        try {
+            console.log(e.target.title);
+            console.log(promotion_id);
+            var body = {
+                promotionID: promotion_id,
+                listProductID: [e.target.title],
+            };
+            const re = axiosApiInstance.post("/api/admin/promotion/addProduct", body);
+            console.log(re.data);
+            var listNew = [];
+            listAllProduct.forEach((item) => {
+                if (e.target.title == item.id) {
+                    item.status = !item.status;
+                }
+                listNew.push(item);
+            });
+            setListProductApply(listNew);
+        } catch (error) {
+            
+        }
     };
 
 

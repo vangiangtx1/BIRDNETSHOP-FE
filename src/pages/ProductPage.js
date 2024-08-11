@@ -6,14 +6,19 @@ import { toast } from 'react-toastify';
 import adminLayout from "../admin/adminLayout";
 import axiosApiInstance from "../context/interceptor";
 import Pagination from "../components/Pagination";
+import axios from "../api/axios";
 
 
 const ProductPage = () => {
     const param = useLocation();
+    const query = new URLSearchParams(param.search);
+    const page = parseInt(query.get('page') || '1', 10);
+    const itemsPerPage = 10;
+    const [totalPage, setTotalPage] = useState(1)
+
 
     const [list, setList] = useState([]);
     const [load, setLoad] = useState(false);
-    const [totalPage, setTotalPage] = useState(1)
     const [quantity, setQuantity] = useState(1)
     const [listCate, setListCate] = useState([]);
     const [listTag, setListTag] = useState([]);
@@ -134,88 +139,149 @@ const ProductPage = () => {
             console.error(error);
         }
     }
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     let tokensData = JSON.parse(localStorage.getItem("tokens"))
+    //     const params = {
+    //         description: product_describe,
+    //         name: product_name,
+    //         // price: product_sold,
+    //         categories: [
+    //             "idCategory"
+    //         ]
+    //     }
+    //     const methodForm = editForm ? 'put' : 'post';
+    //     const urlForm = editForm ? `/api/product/update/${product_id}` : `/api/product/add`;
+    //     const kq = await axiosApiInstance({
+    //         method: methodForm,
+    //         url: axiosApiInstance.defaults.baseURL + urlForm,
+    //         params: params,
+    //         headers: {
+    //             'Authorization': `Bearer ${tokensData.data.accessToken}`,
+    //             'Accept': '*/*',
+    //             'Content-Type': 'multipart/form-data'
+    //         },
+    //         data: {
+    //             image: imageFiles[0]
+    //         }
+    //     });
+    //     console.log("KQ:", kq)
+    //     if (kq.data?.status === 200) {
+    //         toast.success(kq.data.message);
+    //         getProduct(param.search === '' ? '?page=1' : param.search, 5);
+    //         setShow(false);
+    //         // if (!editForm) {
+    //         //     await sendNotifyForApp(kq.data?.product)
+    //         // }
+    //     } else
+    //         toast.error(kq.data.message);
+    //     console.log("Product:",params)
+    // }
+    const uploadImageToCloudinary = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'f3hgyej7'); // Thay thế bằng upload preset của bạn
+    
+        try {
+            const response = await axios.post('https://api.cloudinary.com/v1_1/dd2ozi6iz/image/upload', formData);
+            return response.data.secure_url; // URL của hình ảnh đã tải lên
+        } catch (error) {
+            console.error("Error uploading image to Cloudinary", error);
+            toast.error("An error occurred while uploading the image.");
+            throw error;
+        }
+    };
+    
+    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let tokensData = JSON.parse(localStorage.getItem("tokens"))
-        const params = {
-            description: product_describe,
-            name: product_name,
-            // price: product_sold,
-            categories: [
-                "idCategory"
-            ]
-        }
-        const methodForm = editForm ? 'put' : 'post';
-        const urlForm = editForm ? `/api/product/update/${product_id}` : `/api/product/add`;
-        const kq = await axiosApiInstance({
-            method: methodForm,
-            url: axiosApiInstance.defaults.baseURL + urlForm,
-            params: params,
-            headers: {
-                'Authorization': `Bearer ${tokensData.data.accessToken}`,
-                'Accept': '*/*',
-                'Content-Type': 'multipart/form-data'
-            },
-            data: {
-                image: imageFiles[0]
+    
+        let tokensData = JSON.parse(localStorage.getItem("tokens"));
+        const file = imageFiles[0]; // Giả sử bạn có một file hình ảnh trong state hoặc biến
+    
+        try {
+            // Tải ảnh lên Cloudinary
+            const imageUrl = await uploadImageToCloudinary(file);
+    
+            // Tạo đối tượng chứa dữ liệu sản phẩm
+            const product = {
+                description: product_describe,
+                name: product_name,
+                categories: ["idCategory"], // Giả sử bạn có một mảng id category
+                image: imageUrl // Thêm URL hình ảnh vào dữ liệu sản phẩm
+            };
+    
+            // Tạo FormData để gửi dữ liệu sản phẩm
+            const formData = new FormData();
+            formData.append("description", product.description);
+            formData.append("name", product.name);
+            formData.append("categories", JSON.stringify(product.categories)); // Chuyển mảng thành JSON string nếu cần
+            formData.append("image", imageUrl); // Đây là URL hình ảnh đã tải lên, không phải file hình ảnh
+    
+            const methodForm = editForm ? 'put' : 'post';
+            const urlForm = editForm ? `/api/product/update/${product_id}` : `/api/product/add`;
+    
+            // Gửi dữ liệu sản phẩm đến backend
+            const response = await axios({
+                method: methodForm,
+                url: urlForm,
+                headers: {
+                    'Authorization': `Bearer ${tokensData.data.accessToken}`,
+                    'Content-Type': 'multipart/form-data' // FormData không yêu cầu thiết lập Content-Type
+                },
+                data: formData
+            });
+    
+            if (response.data?.status === 200) {
+                toast.success(response.data.message);
+                setShow(false);
+            } else {
+                toast.error(response.data.message);
             }
-        });
-        console.log("KQ:", kq)
-        if (kq.data?.status === 200) {
-            toast.success(kq.data.message);
-            getProduct(param.search === '' ? '?page=1' : param.search, 5);
-            setShow(false);
-            // if (!editForm) {
-            //     await sendNotifyForApp(kq.data?.product)
-            // }
-        } else
-            toast.error(kq.data.message);
-        console.log("Product:",params)
-    }
+        } catch (error) {
+            console.error("Error submitting the form", error.response?.data || error);
+            toast.error("An error occurred while submitting the form.");
+        }
+    };
+    
+    
 
-    const handleBlock = async (e) => {
-        e.preventDefault();
-        const tmpID = parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[0].innerText
-        console.log(tmpID);
-        const kq = await axiosApiInstance.delete(axiosApiInstance.defaults.baseURL + `/api/product/block?productID=${tmpID}`)
-        if (kq.data.status === true) {
-            toast.success("Sản phẩm đã được khóa");
-            setShow(false);
-        } else
-            toast.error(kq.data.message);
-        await getProduct(param.search === '' ? '?page=1' : param.search, 5);
-    }
-    const handleUnBlock = async (e) => {
-        e.preventDefault();
-        const tmpID = parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[0].innerText
-        console.log(tmpID);
-        const kq = await axiosApiInstance.delete(axiosApiInstance.defaults.baseURL + `/api/product/un_block?productID=${tmpID}`)
-        if (kq.data.status === true) {
-            toast.success("Sản phẩm đã được mở khóa");
-            setShow(false);
-        } else
-            toast.error(kq.data.message);
-        await getProduct(param.search === '' ? '?page=1' : param.search, 5);
-    }
 
-    async function getProduct(page, size) {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product?${page}&${size}`)
-        setLoad(true);
-        console.log("product:", result)
-        setList(result?.data?.data.items)
-        setTotalPage(result?.data.totalPages)
-    }
+    useEffect(() => {
+        const getProduct = async () => {
+            try {
+                const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product`,
+                    {
+                        params: {
+                            page,
+                            itemsPerPage
+                        }
+                    })
+
+                setLoad(true);
+                console.log("API response:", result?.data?.data);
+                setList(result?.data?.data.items)
+                setTotalPage(result?.data?.data?.totalPages)
+                // console.log("tổng số trang:",result?.data?.data?.totalPages)
+            } catch (error) {
+
+            }
+        }
+        getProduct()
+    }, [page]);
+
 
     async function getDetails(id) {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
-        setLoad(true);
-        setProductDetail(result?.data?.data.detailInventory)
-        setDescribe(result?.data?.data?.description)
-        console.log(result)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/detail/${id}`)
+            setLoad(true);
+            setProductDetail(result?.data?.data.detailInventory)
+            setDescribe(result?.data?.data?.description)
+            console.log(result)
+        } catch (error) {
+
+        }
     }
 
     async function getAllTags() {
@@ -226,14 +292,18 @@ const ProductPage = () => {
 
 
     async function getCategory() {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/category`)
-        // console("result",result)
-        setLoad(true);
-        setListCate(result?.data.data.items)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/category`)
+            // console("result",result)
+            setLoad(true);
+            setListCate(result?.data.data.items)
+        } catch (error) {
+
+        }
     }
 
     useEffect(() => {
-        getProduct((param.search === '' ? '?page=1' : param.search, 5))
+        // getProduct((param.search === '' ? '?page=1' : param.search, 5))
         getCategory();
         getAllTags();
     }, [param]);
@@ -261,8 +331,10 @@ const ProductPage = () => {
     };
 
     useEffect(() => {
-        const images = [], fileReaders = [];
+        const images = [];
+        const fileReaders = [];
         let isCancel = false;
+
         if (imageFiles.length) {
             imageFiles.forEach((file) => {
                 const fileReader = new FileReader();
@@ -270,24 +342,25 @@ const ProductPage = () => {
                 fileReader.onload = (e) => {
                     const { result } = e.target;
                     if (result) {
-                        images.push(result)
+                        images.push(result);
                     }
+                    // Kiểm tra nếu đã đọc tất cả file và không bị hủy
                     if (images.length === imageFiles.length && !isCancel) {
                         setImages(images);
                     }
-                }
+                };
                 fileReader.readAsDataURL(file);
-            })
+            });
         }
-        ;
+
         return () => {
             isCancel = true;
-            fileReaders.forEach(fileReader => {
+            fileReaders.forEach((fileReader) => {
                 if (fileReader.readyState === 1) {
-                    fileReader.abort()
+                    fileReader.abort();
                 }
-            })
-        }
+            });
+        };
     }, [imageFiles]);
 
     return (
@@ -329,7 +402,7 @@ const ProductPage = () => {
                                                     width="50" height="50" className="img-fluid img-thumbnail"
                                                     alt="Sheep" />
                                             </td>
-                                            <td className="tdPrice">{item?.price.toLocaleString('vi', {
+                                            <td className="tdPrice">{item?.price?.toLocaleString('vi', {
                                                 style: 'currency',
                                                 currency: 'VND'
                                             })}</td>
@@ -346,19 +419,6 @@ const ProductPage = () => {
                                                     title="Chỉnh sửa" onClick={handleShow}><i className="fa fa-pencil"
                                                         aria-hidden="true"></i>
                                                 </button>
-                                                {item.status ?
-                                                    <button type="button"
-                                                        className="btn btn-outline-danger btn-light btn-sm mx-sm-1 px-lg-2 w-32"
-                                                        title="Mở khóa" onClick={handleUnBlock}><i className="fa fa-unlock"
-                                                            aria-hidden="true"></i>
-                                                    </button> :
-                                                    <button type="button"
-                                                        className="btn btn-outline-danger btn-light btn-sm mx-sm-1 px-lg-2 w-32"
-                                                        title="Khóa" onClick={handleBlock}><i className="fa fa-lock"
-                                                            aria-hidden="true"></i>
-                                                    </button>
-                                                }
-
                                             </td>
                                         </tr>))}
 

@@ -15,16 +15,20 @@ const CartPage = () => {
     const [cart, setCart] = useState([]);
 
     async function getCart() {
-        const result = await axiosApiInstance.get(
-            axiosApiInstance.defaults.baseURL + `/api/cart/all`
-        );
-        setMyCart(result?.data.data);
-        console.log("cart", result?.data?.data);
-        setCheckedState(new Array(result?.data.data.length).fill(false));
+        try {
+            const result = await axiosApiInstance.get(
+                axiosApiInstance.defaults.baseURL + `/api/cart/all`
+            );
+            setMyCart(result?.data.data);
+            console.log("cart", result?.data?.data);
+            setCheckedState(new Array(result?.data.data.length).fill(false));
+        } catch (error) {          
+        }  
     }
 
     const handleUpdateCart = async (item, quantity) => {
-        const newQuantity = Math.max(1, quantity); // Đảm bảo quantity không nhỏ hơn 1
+        try {
+            const newQuantity = Math.max(1, quantity); // Đảm bảo quantity không nhỏ hơn 1
 
         const body = {
             productDetailID: item?.product.id,
@@ -53,6 +57,9 @@ const CartPage = () => {
         console.log("item test:", item);
         setCart(updatedCart);
         getTotal();
+        } catch (error) {
+            
+        }
     };
 
     const handleDeleteItem = async (detailId) => {
