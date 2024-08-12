@@ -1,158 +1,93 @@
-import React, {useEffect, useState} from "react";
-import './../assets/css/chatbox.css'
-import axios from "../api/axios";
-import axiosApiInstance from "../context/interceptor";
-import {useLocation, useNavigate} from "react-router-dom"
-
+import React, { useState, useRef } from "react";
+import './../assets/css/chatbox.css';
 
 const ChatBox = () => {
-    const navigate= useNavigate()
-    const [show, setShow] = useState(false)
-    const [talk, setTalk] = useState([])
-    const [message, setMessage] = useState()
-    const [collect,setCollect] =useState([])
-    const [isRecommend,setIsRecommend]= useState(false)
+    const [show, setShow] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
+    const [message, setMessage] = useState("");
+    const answerRef = useRef(null);
 
-    const scroll = () => {
-        const el = document.getElementById('chat-feed');
-        if (el) {
-            el.scrollTop = el.scrollHeight;
-        }
-    }
+    const questions = [
+        { id: 1, question: "Sản phẩm có xuất xứ từ đâu?", answer: "Sản phẩm được sản xuất tại Nhật Bản." },
+        { id: 2, question: "Sản phẩm có chất lượng không?", answer: "Sản phẩm đảm bảo chất lượng và đã được kiểm định." },
+        { id: 3, question: "Chính sách bảo hành như thế nào?", answer: "Sản phẩm được bảo hành trong 12 tháng." },
+    ];
 
-    const callChatBox = async (msg) => {
-        const response = await axios(`http://127.0.0.1:5000/get?msg=${msg}`, {
-            method: 'GET',
-            mode: 'no-cors',
-        })
-        const kq = {
-            response: response.data,
-            link: response.data.startsWith("list") ? `/recommend?l=${response.data}` : null
-        }
-
-       if(isRecommend){
-            setIsRecommend(false)
-            collect.splice(0)
-            setCollect(collect)
-       }
-
-        collect.push({
-            request:msg,
-            response:response.data
-        })
-        setCollect(collect)
-        if (kq.link) {
-            try {
-                setIsRecommend(true);
-                const rp = await axios.get(axiosApiInstance.defaults.baseURL + `/api/chatbot/tags/describer?nameTag=${kq.response}`)
-                kq.response = rp.data.data?rp.data.data:response.data
-
-            } catch (e) {
-                kq.response = {
-                    name: response.data
-                }
-            }
-        }
-
-        console.log(collect)
-        talk.push(kq)
-        setTalk(talk)
-    }
-
+    const handleClick = (id) => {
+        setSelectedQuestion(id);
+        setTimeout(() => {
+            answerRef.current.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+    };
 
     const handleShow = () => {
         setShow(!show);
-    }
+    };
 
-    const handleSend = async (e) => {
-        if (message) {
-            const tmp = {
-                request: message
-            }
-            talk.push(tmp)
-            setTalk(talk)
-            setMessage(" ")
-            await callChatBox(message)
-            setMessage("")
+    const handleSendMessage = () => {
+        if (message.trim()) {
+            // Handle sending message logic here
+            setMessage("");
         }
+    };
 
-    }
-
-    const handleSubmit = async (e) => {
-        if (e.key === "Enter" && message) {
-            const tmp = {
-                request: message
-            }
-            talk.push(tmp)
-            setTalk(talk)
-            setMessage(" ")
-            await callChatBox(message)
-            setMessage("")
-        }
-    }
-    const  handleClick = (e)=>{
-        e.preventDefault(false);
-        axios.post(axiosApiInstance.defaults.baseURL + `/api/chatbot/collect`,collect)
-        window.location.href=`${e.currentTarget.title}`
-    }
-    useEffect(() => {
-        scroll();
-    }, [message, show])
-
-    return <>
-        <div className="chat-button ml-3 mb-4">
-            <button type="button" onClick={handleShow} className="btn-xl btn-info btn-circle"><i
-                class="fa fa-comment text-white"></i></button>
-        </div>
-        {show ?
-            <div class="container chat-container d-flex justify-content-center">
-                <div class="card chat-card ">
-                    <div className=" chat-header d-flex flex-row  adiv ">
-                        <img src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/236864609_2056131947895671_6452063846381198076_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGGNQUe1_XCSHOdTvop3R3vAYjvhH-jRDUBiO-Ef6NENZFFEPEBMg3N2v09pvB2A9sOYbylYFfWw9ezQIVHD7u3&_nc_ohc=L9wNaEaHnM0Q7kNvgE8rle5&_nc_ht=scontent.fsgn2-9.fna&oh=00_AYC60hWyB3RtYg-teS_5FZIXMa3sx_gBQDdNtxRqwWMv1w&oe=669FECA7" width="50" height="50"/>
-                        <div className=" d-flex justify-content-between p-3 w-100 ps-0 text-white">
-                            <span className="pb-3 ml-8">ChatBot LVG</span>
-                            <i onClick={handleShow} className="close fa fa-times"></i>
-                        </div>
-                    </div>
-
-                    <div class="chat-element" id="chat-feed">
-                        <div class="d-flex p-3">
-                            <img src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/236864609_2056131947895671_6452063846381198076_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGGNQUe1_XCSHOdTvop3R3vAYjvhH-jRDUBiO-Ef6NENZFFEPEBMg3N2v09pvB2A9sOYbylYFfWw9ezQIVHD7u3&_nc_ohc=L9wNaEaHnM0Q7kNvgE8rle5&_nc_ht=scontent.fsgn2-9.fna&oh=00_AYC60hWyB3RtYg-teS_5FZIXMa3sx_gBQDdNtxRqwWMv1w&oe=669FECA7" width="30" height="30"/>
-                            <div class="chat-response ml-2 p-3 text-justify">Chào bạn, mình là LVG ❤! <br/>
-                                Bạn có cần hỗ trợ gì không?
+    return (
+        <>
+            <div className="chat-button ml-3 mb-4">
+                <button type="button" onClick={handleShow} className="btn-circle btn-xl">
+                    <i className="fa fa-comment text-white"></i>
+                </button>
+            </div>
+            {show &&
+                <div className="container chat-container d-flex justify-content-center">
+                    <div className="card chat-card">
+                        <div className="chat-header d-flex flex-row adiv">
+                            <img src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/236864609_2056131947895671_6452063846381198076_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGGNQUe1_XCSHOdTvop3R3vAYjvhH-jRDUBiO-Ef6NENZFFEPEBMg3N2v09pvB2A9sOYbylYFfWw9ezQIVHD7u3&_nc_ohc=L9wNaEaHnM0Q7kNvgE8rle5&_nc_ht=scontent.fsgn2-9.fna&oh=00_AYC60hWyB3RtYg-teS_5FZIXMa3sx_gBQDdNtxRqwWMv1w&oe=669FECA7" width="50" height="50" className="chat-avatar" />
+                            <div className="d-flex justify-content-between p-3 w-100 ps-0 text-white">
+                                <span className="pb-3 ml-8">ChatBot LVG</span>
+                                <i onClick={handleShow} className="close fa fa-times"></i>
                             </div>
                         </div>
 
-                        {talk.map((i) =>
-                            i.request ?
-                                <div className="d-flex  flex-row-reverse p-3">
-                                    <div className="chat-request  mr-2 p-3 text-justify"><span>{i.request}</span>
+                        <div className="chat-messages" id="chat-feed">
+                            {questions.map((item) => (
+                                <div key={item.id} className="d-flex p-3">
+                                    <div className="chat-request" onClick={() => handleClick(item.id)} style={{ cursor: "pointer" }}>
+                                        {item.question}
                                     </div>
                                 </div>
-                                : i.response ?
-                                <div className="d-flex p-3">
-                                    <img src={require('./../assets/images/chatbox.png')}
-                                         width="30" height="30"/>
-                                    <div className="chat-response ml-2 p-3">{i.link ?
-                                        <div className="describer-recommend">{i.response?.describer}: <a
-                                       onClick={handleClick}  title={`${i.link}`}>
-                                            <div className="link-recommend">{i.response.name?i.response.name:i.link}</div>
-                                        </a></div>
-                                        : i.response}
+                            ))}
+
+                            {selectedQuestion && (
+                                <div className="d-flex flex-column align-items-start p-3 chat-response-wrapper" ref={answerRef}>
+                                    <div className="chat-response-header d-flex align-items-center">
+                                        <img src="https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/236864609_2056131947895671_6452063846381198076_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeGGNQUe1_XCSHOdTvop3R3vAYjvhH-jRDUBiO-Ef6NENZFFEPEBMg3N2v09pvB2A9sOYbylYFfWw9ezQIVHD7u3&_nc_ohc=L9wNaEaHnM0Q7kNvgE8rle5&_nc_ht=scontent.fsgn2-9.fna&oh=00_AYC60hWyB3RtYg-teS_5FZIXMa3sx_gBQDdNtxRqwWMv1w&oe=669FECA7" height="50" className="chat-avatar" />
+                                        <div className="ms-2">
+                                            <strong>ChatBot LVG</strong>
+                                        </div>
+                                    </div>
+                                    <div className="chat-response p-3">
+                                        {questions.find((item) => item.id === selectedQuestion)?.answer}
                                     </div>
                                 </div>
-                                : null
-                        )}
-                    </div>
-                    <div class=" d-flex flex-row align-items-center px-3 chatbox-input">
-                        <input id="txtChatText" autoComplete="off" className="cssChatText text-justify" value={message}
-                               onKeyDown={(e) => handleSubmit(e)} onChange={(e) => setMessage(e.currentTarget.value)}
-                               placeholder="Nhập câu hỏi của bạn..."/>
-                        <i className="fa fa-paper-plane icon-send" onClick={handleSend}></i>
+                            )}
+                        </div>
+
+                        <div className="chat-input-container">
+                            <input
+                                type="text"
+                                className="chat-form-control"
+                                placeholder="Type your message..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                            />
+                            <i className="fa fa-paper-plane icon-send" onClick={handleSendMessage}></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            : null}
-    </>
-}
+            }
+        </>
+    );
+};
+
 export default ChatBox;
