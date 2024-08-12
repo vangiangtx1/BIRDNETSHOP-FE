@@ -74,7 +74,7 @@ const CategoryPage = () => {
                 setChange(!change)
             }
         } catch (error) {
-
+            toast.error("Danh mục đã có sản phẩm nên không thể xóa")
         }
     }
 
@@ -90,8 +90,8 @@ const CategoryPage = () => {
                     <div className="d-flex justify-content-center">
                         <div className="table-container" style={{ minWidth: '80%' }}>
                             <div className="row">
-                                <div className="col">
-                                    <h5 className="pb-2 mb-0">Danh sách danh mục</h5>
+                                <div className="">
+                                    <h5 className="text-uppercase text-center">Danh mục sản phẩm</h5>
                                 </div>
                                 <div className="col text-right">
                                     <button className="btn btn-default low-height-btn" onClick={handleShowAdd}>
@@ -142,13 +142,15 @@ const CategoryPage = () => {
                                 <Modal.Body>
                                     <Form onSubmit={handleSubmit}>
                                         <Row>
-                                            <Col>
-                                                <Form.Group className="mb-2">
-                                                    <Form.Control type="text" placeholder="Nhập mã danh mục" name="id" required
-                                                        value={id}
-                                                        onChange={(e) => setID(e.target.value)} />
-                                                </Form.Group>
-                                            </Col>
+                                            {form === "add" &&
+                                                <Col>
+                                                    <Form.Group className="mb-2">
+                                                        <Form.Control type="text" placeholder="Nhập mã danh mục" name="id" required
+                                                            value={id}
+                                                            onChange={(e) => setID(e.target.value)} />
+                                                    </Form.Group>
+                                                </Col>
+                                            }
                                             <Col>
                                                 <Form.Group className="mb-2">
                                                     <Form.Control type="text" placeholder="Nhập tên danh mục" name="name" required

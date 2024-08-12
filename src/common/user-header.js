@@ -51,10 +51,10 @@ const UserHeader = () => {
 
                         </li>
                         <li class="nav-item">
-                            <NavLink class="nav-link" to="https://chatgpt.com/">Thông tin</NavLink>
+                            <NavLink class="nav-link" to="/a">Thông tin</NavLink>
                         </li>
                         <li class="nav-item">
-                            <NavLink class="nav-link" to="https://chatgpt.com/">Liên hệ</NavLink>
+                            <NavLink class="nav-link" to="/a">Liên hệ</NavLink>
                         </li>
                     </ul>
                 </div>

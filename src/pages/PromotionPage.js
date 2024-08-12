@@ -10,6 +10,7 @@ import ReactLoading from "react-loading";
 const PromotionPage = () => {
     const [load, setLoad] = useState(false);
     const [show, setShow] = useState(false);
+    const [showEdit, setShowEdit] = useState(false);
     const [promotion_id, setId] = useState();
     const [promotion_value, setValue] = useState();
     const [promotion_name, setName] = useState();
@@ -29,50 +30,79 @@ const PromotionPage = () => {
         setShow(true);
     };
 
+    const handleCloseEdit = () => {
+        setShowEdit(false);
+        setShowDetail(false);
+    };
+    const handleShowEdit = (item) => {
+        setShowEdit(true);
+        setDescription(item.description)
+        setstartDate(item.startDate)
+        setendDate(item.endDate)
+        setName(item.name)
+        setId(item.id)
+        setShowEdit(true);
+        // console.log("id:", e.currentTarget.title)
+    };
+
     async function getProduct() {
-       try {
-         const result = await axiosApiInstance.get(
-             axiosApiInstance.defaults.baseURL + `/api/product`
-         );
-         let listTMP = [];
-         result?.data?.data.items.forEach((element) => {
-             const { id, name, linkImg } = element;
-             listTMP.push({ id, name, linkImg, status: false });
-         });
-         setAllProduct(listTMP);
-         setLoad(true);
-       } catch (error) {
-        
-       }
+        try {
+            const result = await axiosApiInstance.get(
+                axiosApiInstance.defaults.baseURL + `/api/product`
+            );
+            let listTMP = [];
+            result?.data?.data.items.forEach((element) => {
+                const { id, name, linkImg } = element;
+                listTMP.push({ id, name, linkImg, status: false });
+            });
+            setAllProduct(listTMP);
+            setLoad(true);
+        } catch (error) {
+
+        }
     }
 
     const ClickShowProduct = async (e) => {
         try {
             setShowDetail(true);
+
+            // Lấy ID từ sự kiện
             const tmpID = parents(e.target).find(function (c) {
                 return c.tagName === "TR";
             }).children[0].innerText;
             setId(tmpID);
-            const re = await axiosApiInstance.get(
-                axiosApiInstance.defaults.baseURL + `/api/product/list-promotion/${tmpID}`
-            );
-            setListProductApply(re.data.data);
-    
-            var listNew = [];
-            listAllProduct.forEach((item) => {
-                var st = false;
-                re.data.data.forEach((i) => {
-                    if (i[0] === item.id) st = true;
-                });
-                if (st) item.status = true;
-                else item.status = false;
-                listNew.push(item);
+
+            // Gọi API để lấy dữ liệu sản phẩm áp dụng
+            const re = await axiosApiInstance.get('http://localhost:8080/api/product/list-promotion');
+
+            // Kiểm tra cấu trúc dữ liệu trả về
+            console.log(re.data.data);
+
+            // Lọc các sản phẩm hợp lệ từ dữ liệu trả về
+            const validProducts = re.data.data.filter(item => item.id !== null && item.linkImg !== null && item.price !== null);
+
+            // Cập nhật danh sách sản phẩm áp dụng
+            const listNew = listAllProduct.map((item) => {
+                // Tìm sản phẩm trong danh sách khuyến mãi
+                const promotionProduct = validProducts.find(p => p.id === item.id);
+
+                return {
+                    ...item,
+                    // Cập nhật giá và trạng thái nếu sản phẩm có trong danh sách khuyến mãi
+                    price: promotionProduct ? promotionProduct.price : item.price,
+                    status: promotionProduct ? true : false
+                };
             });
+
             setListProductApply(listNew);
         } catch (error) {
-            
+            console.error('Error fetching products:', error);
+            // Xử lý lỗi nếu cần
         }
     };
+
+
+
     const ClickDeletePromotion = async (e) => {
         try {
             const tmpID = parents(e.target).find(function (c) {
@@ -88,7 +118,7 @@ const PromotionPage = () => {
                 setShow(false);
             } else toast.error("Khuyến mãi đã được sử dụng. Không thể xóa");
         } catch (error) {
-            
+
         }
     };
     async function getPromotion() {
@@ -100,7 +130,7 @@ const PromotionPage = () => {
             setListPromotion(result?.data.data);
             console.log(result.data);
         } catch (error) {
-            
+
         }
     }
     const handleSubmit = async (e) => {
@@ -121,7 +151,7 @@ const PromotionPage = () => {
                     },
                 ],
             };
-    
+
             const urlForm = `/api/promotion`;
             const re = await axiosApiInstance.post(
                 axiosApiInstance.defaults.baseURL + urlForm,
@@ -133,7 +163,7 @@ const PromotionPage = () => {
                 setShow(false);
             } else toast.error("Thêm khuyến mãi không thành công! Thử lại ");
         } catch (error) {
-            
+
         }
     };
 
@@ -157,7 +187,7 @@ const PromotionPage = () => {
                 promotionID: promotion_id,
                 listProductID: [e.target.title],
             };
-            const re = axiosApiInstance.post("/api/admin/promotion/addProduct", body);
+            const re = axiosApiInstance.post("/api/promotion", body);
             console.log(re.data);
             var listNew = [];
             listAllProduct.forEach((item) => {
@@ -168,7 +198,7 @@ const PromotionPage = () => {
             });
             setListProductApply(listNew);
         } catch (error) {
-            
+            toast.error("Không thể áp dụng cho sản phẩm này")
         }
     };
 
@@ -176,14 +206,14 @@ const PromotionPage = () => {
     const formatTimestamp = (timestamp) => {
         const date = new Date(timestamp * 1000); // Chuyển giây thành mili giây
         return date.toLocaleString('vi-VN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
         });
-      };
+    };
 
 
     useEffect(() => {
@@ -196,8 +226,8 @@ const PromotionPage = () => {
                 <div>
                     <div className="table-container" style={{ width: "100%" }}>
                         <div className="row">
-                            <div className="col">
-                                <h5 className="pb-2 mb-0">Danh sách Khuyến mãi</h5>
+                            <div className="mb-2">
+                                <h5 className="text-uppercase text-center">Danh sách Khuyến mãi</h5>
                             </div>
                             <div className="col text-right">
                                 <button
@@ -228,7 +258,9 @@ const PromotionPage = () => {
                                         <th scope="col" className="col-2">
                                             Ngày kết thúc
                                         </th>
-                                        <th scope="col" className="col-1"></th>
+                                        <th scope="col" className="col-2">
+                                            Tác vụ
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -255,6 +287,7 @@ const PromotionPage = () => {
                                                     type="button"
                                                     className="btn btn-outline-warning btn-light btn-sm mx-sm-1 px-lg-2 w-32"
                                                     title="Chỉnh sửa"
+                                                    onClick={() => handleShowEdit(item)}
                                                 >
                                                     <i className="fa fa-pencil" aria-hidden="true"></i>
                                                 </button>
@@ -275,7 +308,7 @@ const PromotionPage = () => {
                     </div>
                     <Modal show={show} onHide={handleClose}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Khuyến mãi</Modal.Title>
+                            <Modal.Title>Thêm khuyến mãi</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <Form onSubmit={handleSubmit}>
@@ -351,18 +384,99 @@ const PromotionPage = () => {
                             </Button>
                         </Modal.Footer>
                     </Modal>
+
+                    <Modal show={showEdit} onHide={handleCloseEdit}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Chỉnh sửa khuyến mãi</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group className="mb-2">
+                                    <Form.Control
+                                        as="select"
+                                        value={promotion_id}
+                                        onChange={(e) => setId(e.target.value)}>
+                                        <option>Chọn sản phẩm áp dụng</option>
+                                        {listAllProduct &&
+                                            listAllProduct.map((item, index) => {
+                                                return (
+                                                    <>
+                                                        <option key={item.id} value={item.id}>
+                                                            {item.name}
+                                                        </option>
+                                                    </>
+                                                );
+                                            })}
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group className="mb-2">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Tên Khuyến Mãi"
+                                        name="name"
+                                        value={promotion_name}
+                                        onChange={(e) => setName(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-2">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="% Khuyến Mãi"
+                                        name="value"
+                                        value={promotion_value}
+                                        onChange={(e) => setValue(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-2">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Mô tả"
+                                        name="description"
+                                        value={promotion_description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-2">
+                                    <Form.Control
+                                        type="date"
+                                        name="startDate"
+                                        value={promotion_startDate}
+                                        onChange={(e) => setstartDate(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-4">
+                                    <Form.Control
+                                        type="date"
+                                        name="endDate"
+                                        value={promotion_endDate}
+                                        onChange={(e) => setendDate(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Button variant="success" type="submit">
+                                    Cập nhật
+                                </Button>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCloseEdit}>
+                                Đóng
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+
+
                     <Modal show={showDetail} onHide={handleClose}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Sản phẩm</Modal.Title>
+                            <Modal.Title>Danh sách sản phẩm áp dụng</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <Form>
-                                {listProductApply.length ? (
+                                {listProductApply.length != 0 ? (
                                     <table className="table ">
                                         <thead>
                                             <tr>
                                                 <th scope="col" className="col-2">
-                                                    id
+                                                    Mã sản phẩm
                                                 </th>
                                                 <th scope="col" className="col-2">
                                                     Tên Sản Phẩm
@@ -373,11 +487,11 @@ const PromotionPage = () => {
                                                 <th scope="col" className="col-2">
                                                     Giá
                                                 </th>
-                                                <th></th>
+                                                <th>Chọn</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {listAllProduct.map((item) => (
+                                            {listProductApply.map((item) => (
                                                 <tr>
                                                     <th>{item.id}</th>
                                                     <th>{item.name}</th>
@@ -390,6 +504,15 @@ const PromotionPage = () => {
                                                             alt="Sheep"
                                                         />
                                                     </td>
+                                                    {item?.price ?
+                                                        <th>{item?.price?.toLocaleString('vi', {
+
+                                                            style: 'currency',
+                                                            currency: 'VND'
+                                                        })}</th>
+                                                        :
+                                                        <td>Không áp dụng</td>
+                                                    }
 
                                                     <th>
                                                         <input

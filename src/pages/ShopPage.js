@@ -192,7 +192,7 @@ const ShopPage = () => {
                 }
                 if (kq?.data?.status === 200) {
                     setItem({})
-                    toast.success("Sản phẩm đã được thêm vào giỏ hàng của bạn!", { position: "top-center" })
+                    toast.success("Sản phẩm đã được thêm vào giỏ hàng của bạn!")
                 } else {
                     toast.error("Thất bại! Vui lòng thử lại")
                 }

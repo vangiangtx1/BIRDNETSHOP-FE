@@ -21,7 +21,7 @@ const userProfileLayout = (ChildComponent) => {
 
                                 {/* <!-- SIDEBAR USERPIC --> */}
                             <div className="profile-userpic">
-                                <img src="https://scontent.fsgn2-8.fna.fbcdn.net/v/t39.30808-6/280472911_2260339627474901_3106098032818695483_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEPldT7tb_-VCFOnXCCrv50xlO-rZP6PG_GU76tk_o8bxM3v_GaoDeMcnf4jztHLwm03C0-QzvbbY5HBYLHG-xE&_nc_ohc=ovCBaSeczKgQ7kNvgHJkgJR&_nc_ht=scontent.fsgn2-8.fna&oh=00_AYBQKBKJ7-IMTnTrzDffXNFm_7fEVZ0W29_Nad_BmbUT_Q&oe=66B91727" className="img-responsive profile-img-center" alt="" />
+                                <img src="https://scontent.fsgn3-1.fna.fbcdn.net/v/t39.30808-6/301358564_2356174064558123_1914605898311611964_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeGdoVzsBDf7C7HxFoS1Cev6CXmxFZfH3AgJebEVl8fcCJUM24AimozXwwonHgzp0UvW2FDHRtZAa1j6qx2Ludk6&_nc_ohc=k0mrY7I3ZFAQ7kNvgEQndLr&_nc_zt=23&_nc_ht=scontent.fsgn3-1.fna&oh=00_AYCchkiEhbvYMTf__lh2-7hSbL_xdJDfzhJNAZxzYM6m-w&oe=66BF73FC" className="img-responsive profile-img-center" alt="" />
                             </div>
                             {/* <!-- END SIDEBAR USERPIC -->
                             <!-- SIDEBAR USER TITLE --> */}

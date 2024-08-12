@@ -41,14 +41,14 @@ const CustomerPage = () => {
             load ?
                 <div>
                     <div className="table-container" style={{ width: '100%' }}>
-                        <div className="customerH1" >
-                            <h3 className="">Danh sách khách hàng</h3>
+                        <div className="mb-4" >
+                            <h5 className="text-uppercase text-center">Danh sách khách hàng</h5>
                         </div>
                         <div className="d-flex text-muted overflow-auto">
                             <table className="table ">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="col-2">Tên Khách Hàng</th>
+                                        <th scope="col" className="col-2">Tên khách hàng</th>
                                         <th scope="col" className="col-1">Giới tính </th>
                                         <th scope="col" className="col-2">SDT</th>
                                         <th scope="col" className="col-2">Địa chỉ</th>

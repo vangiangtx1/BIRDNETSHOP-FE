@@ -15,6 +15,7 @@ const ProductPage = () => {
     const page = parseInt(query.get('page') || '1', 10);
     const itemsPerPage = 10;
     const [totalPage, setTotalPage] = useState(1)
+    const [change, setChange] = useState(false);
 
 
     const [list, setList] = useState([]);
@@ -31,7 +32,7 @@ const ProductPage = () => {
     const [product_category, setCategory] = useState();
     const [product_sold, setSold] = useState();
     const [product_describe, setDescribe] = useState();
-    const [idCategory, setIdCategory] = useState();
+    const [IdCategory, setIdCategory] = useState();
 
 
     function parents(node) {
@@ -46,31 +47,34 @@ const ProductPage = () => {
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
-    const handleShow = (e) => {
-        setModalForm(true);
-        setImage(null);
-        setId(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[0].innerText)
-        setName(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[1].innerText)
-        setImage(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[2].firstChild.currentSrc)
-        setCategory(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[3].innerText)
-        setSold(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[4].innerText)
-        setDescribe(parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[5].innerText)
-        const tag = parents(e.target).find(function (c) {
-            return c.tagName === "TR"
-        }).children[6].innerText;
 
+    const handleShow = (item) => {
+        setModalForm(true);
+        // setId(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[0].innerText)
+        // setName(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[1].innerText)
+        // setImage(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[2].firstChild.currentSrc)
+        // setCategory(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[3].innerText)
+        // setSold(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[4].innerText)
+        // setDescribe(parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[5].innerText)
+        // const tag = parents(e.target).find(function (c) {
+        //     return c.tagName === "TR"
+        // }).children[6].innerText;
+
+        setName(item.name)
+        setImage(item.linkImg);
+        setDescribe(item.description)
         setShow(true);
         setEditForm(true);
     }
@@ -181,9 +185,10 @@ const ProductPage = () => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', 'f3hgyej7'); // Thay thế bằng upload preset của bạn
-    
+
         try {
             const response = await axios.post('https://api.cloudinary.com/v1_1/dd2ozi6iz/image/upload', formData);
+            console.log(response)
             return response.data.secure_url; // URL của hình ảnh đã tải lên
         } catch (error) {
             console.error("Error uploading image to Cloudinary", error);
@@ -191,49 +196,43 @@ const ProductPage = () => {
             throw error;
         }
     };
-    
-    
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         let tokensData = JSON.parse(localStorage.getItem("tokens"));
         const file = imageFiles[0]; // Giả sử bạn có một file hình ảnh trong state hoặc biến
-    
+
         try {
             // Tải ảnh lên Cloudinary
             const imageUrl = await uploadImageToCloudinary(file);
-    
+
             // Tạo đối tượng chứa dữ liệu sản phẩm
             const product = {
-                description: product_describe,
                 name: product_name,
-                categories: ["idCategory"], // Giả sử bạn có một mảng id category
-                image: imageUrl // Thêm URL hình ảnh vào dữ liệu sản phẩm
+                description: product_describe,
+                categories: [IdCategory], // Giả sử bạn có một mảng id category
+                imageUrl: imageUrl // Thêm URL hình ảnh vào dữ liệu sản phẩm
             };
-    
-            // Tạo FormData để gửi dữ liệu sản phẩm
-            const formData = new FormData();
-            formData.append("description", product.description);
-            formData.append("name", product.name);
-            formData.append("categories", JSON.stringify(product.categories)); // Chuyển mảng thành JSON string nếu cần
-            formData.append("image", imageUrl); // Đây là URL hình ảnh đã tải lên, không phải file hình ảnh
-    
+
             const methodForm = editForm ? 'put' : 'post';
             const urlForm = editForm ? `/api/product/update/${product_id}` : `/api/product/add`;
-    
+
             // Gửi dữ liệu sản phẩm đến backend
             const response = await axios({
                 method: methodForm,
                 url: urlForm,
                 headers: {
                     'Authorization': `Bearer ${tokensData.data.accessToken}`,
-                    'Content-Type': 'multipart/form-data' // FormData không yêu cầu thiết lập Content-Type
+                    'Content-Type': 'application/json'
                 },
-                data: formData
+                data: JSON.stringify(product) // Chuyển đổi đối tượng product thành chuỗi JSON
             });
-    
+
             if (response.data?.status === 200) {
+                setChange(!change)
                 toast.success(response.data.message);
                 setShow(false);
             } else {
@@ -242,11 +241,17 @@ const ProductPage = () => {
         } catch (error) {
             console.error("Error submitting the form", error.response?.data || error);
             toast.error("An error occurred while submitting the form.");
+            // console.log("data:", JSON.stringify(product));
         }
     };
-    
-    
 
+
+
+    const handleCategoryChange = (e) => {
+        setIdCategory(e.target.value);
+        // `e.target.value` sẽ chứa id của danh mục
+        console.log('Selected category ID:', e.target.value);
+    };
 
     useEffect(() => {
         const getProduct = async () => {
@@ -269,7 +274,7 @@ const ProductPage = () => {
             }
         }
         getProduct()
-    }, [page]);
+    }, [page,change]);
 
 
     async function getDetails(id) {
@@ -369,8 +374,8 @@ const ProductPage = () => {
                 <div>
                     <div className="table-container" style={{ width: '100%' }}>
                         <div className="row">
-                            <div className="col">
-                                <h5 className="pb-2 mb-0">Danh sách sản phẩm</h5>
+                            <div className="">
+                                <h5 className="text-uppercase text-center">Danh sách sản phẩm</h5>
                             </div>
                             <div className="col text-right">
                                 <button className="btn btn-default low-height-btn" onClick={handleShowAdd}>
@@ -386,8 +391,8 @@ const ProductPage = () => {
                                         <th scope="col" className="col-3">Tên sản phẩm</th>
                                         <th scope="col" className="col-1">Hình ảnh</th>
                                         <th scope="col" className="col-1">Giá bán</th>
-                                        <th style={{ display: 'none' }} scope="col" className="col-1">Mô tả</th>
-                                        <th style={{ display: 'none' }} scope="col" className="col-1">Tag</th>
+                                        <th scope="col" className="col-1">Mô tả</th>
+                                        {/* <th style={{ display: 'none' }} scope="col" className="col-1">Tag</th> */}
                                         <th scope="col" className="col-2">Tác vụ</th>
                                     </tr>
                                 </thead>
@@ -406,8 +411,8 @@ const ProductPage = () => {
                                                 style: 'currency',
                                                 currency: 'VND'
                                             })}</td>
-                                            <td style={{ display: 'none' }} className="tdDescribe">{item.describe}</td>
-                                            <td style={{ display: 'none' }} className="tdDescribe">{item.tag}</td>
+                                            <td className="tdDescribe">{item.description}</td>
+                                            {/* <td style={{ display: 'none' }} className="tdDescribe">{item.tag}</td> */}
                                             <td style={{ whiteSpace: 'nowrap' }}>
                                                 <button type="button"
                                                     className="btn btn-outline-primary btn-light btn-sm mx-sm-1 px-lg-2 w-32"
@@ -416,7 +421,7 @@ const ProductPage = () => {
                                                 </button>
                                                 <button type="button"
                                                     className="btn btn-outline-warning btn-light btn-sm mx-sm-1 px-lg-2 w-32"
-                                                    title="Chỉnh sửa" onClick={handleShow}><i className="fa fa-pencil"
+                                                    title="Chỉnh sửa" onClick={() => handleShow(item)}><i className="fa fa-pencil"
                                                         aria-hidden="true"></i>
                                                 </button>
                                             </td>
@@ -442,11 +447,16 @@ const ProductPage = () => {
                                             value={product_name} onChange={(e) => setName(e.target.value)} />
                                     </Form.Group>
                                     <Form.Group className="mb-2">
-                                        <Form.Control as="select" name="category" required value={product_category}
-                                            onChange={(e) => setCategory(e.target.value)} id="select">
+                                        <Form.Control
+                                            as="select"
+                                            name="category"
+                                            required
+                                            value={product_category}
+                                            onChange={handleCategoryChange}
+                                            id="select">
                                             <option value="">Danh mục</option>
                                             {listCate.map((cate) => (
-                                                <option value={cate.name} key={cate.id}>{cate.categoryName}</option>
+                                                <option value={cate.id} key={cate.id}>{cate.categoryCode}</option>
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
@@ -467,7 +477,7 @@ const ProductPage = () => {
                                             accept="image/png, image/jpg, image/jpeg" multiple />
                                     </Form.Group>
                                     <Form.Group className="mb-2">
-                                        <Form.Control type="text" placeholder="Mô tả" name="id" required
+                                        <Form.Control type="text" placeholder="Mô tả" name="describe" required
                                             value={product_describe}
                                             onChange={(e) => setDescribe(e.target.value)} />
                                     </Form.Group>

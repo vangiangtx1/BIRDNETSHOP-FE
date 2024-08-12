@@ -87,21 +87,33 @@ const ImportPage = () => {
     }
 
     async function getAllProduct() {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/all`)
-        result?.data?.map(a => listProduct.push({ "id": a.id, "name": a.name }));
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/all`)
+            result?.data?.map(a => listProduct.push({ "id": a.id, "name": a.name }));
+        } catch (error) {
+            
+        }
     }
 
     async function getProductPaging(page, size) {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/get_paging${page}&size=${size}`)
-        setLoad(true);
-        setList(result?.data.content)
-        setTotalPage(result?.data?.totalPages)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product/get_paging${page}&size=${size}`)
+            setLoad(true);
+            setList(result?.data.content)
+            setTotalPage(result?.data?.totalPages)
+        } catch (error) {
+            
+        }
     }
 
     async function getListImport() {
-        const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/warehouse/history_import`)
-        setLoad(true);
-        setListImport(result.data)
+        try {
+            const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/warehouse/history_import`)
+            setLoad(true);
+            setListImport(result.data)
+        } catch (error) {
+            
+        }
     }
 
     useEffect(() => {
