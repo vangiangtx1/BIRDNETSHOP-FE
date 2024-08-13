@@ -10,17 +10,16 @@ const ChatBox = () => {
     const answerRef = useRef(null);
 
     const questions = [
-        { id: 1, question: "Sản phẩm có xuất xứ từ đâu?", answer: "Sản phẩm được sản xuất tại Nhật Bản." },
-        { id: 2, question: "Sản phẩm có chất lượng không?", answer: "Sản phẩm đảm bảo chất lượng và đã được kiểm định." },
-        { id: 3, question: "Chính sách bảo hành như thế nào?", answer: "Sản phẩm được bảo hành trong 12 tháng." },
-        { id: 4, question: "Sản phẩm có những tính năng nổi bật nào?", answer: "Sản phẩm có tính năng chống nước, chống sốc, và sử dụng công nghệ hiện đại." },
-        { id: 5, question: "Sản phẩm có chương trình khuyến mãi không?", answer: "Hiện tại, sản phẩm đang có chương trình giảm giá 20% cho đơn hàng đầu tiên." },
-        { id: 6, question: "Thời gian giao hàng là bao lâu?", answer: "Thời gian giao hàng dự kiến là từ 3 đến 5 ngày làm việc." },
-        { id: 7, question: "Có thể đổi trả sản phẩm không?", answer: "Bạn có thể đổi trả sản phẩm trong vòng 7 ngày nếu có lỗi từ nhà sản xuất." },
-        { id: 8, question: "Thanh toán bằng những phương thức nào?", answer: "Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, chuyển khoản, và thanh toán khi nhận hàng." },
+        { id: 1, question: "Tổ yến này có nguồn gốc từ đâu?", answer: "Tổ yến của chúng tôi được thu hái từ các vùng đảo nổi tiếng ở Đông Nam Á, đảm bảo chất lượng và độ tinh khiết cao." },
+        { id: 2, question: "Chất lượng tổ yến có được đảm bảo không?", answer: "Chúng tôi cam kết cung cấp tổ yến đạt tiêu chuẩn chất lượng cao và đã được kiểm nghiệm kỹ lưỡng trước khi đến tay khách hàng." },
+        { id: 3, question: "Chính sách bảo hành sản phẩm như thế nào?", answer: "Tổ yến của chúng tôi không có chính sách bảo hành, nhưng chúng tôi cam kết đổi trả nếu có lỗi do nhà sản xuất trong vòng 7 ngày." },
+        { id: 4, question: "Tổ yến có những đặc điểm nổi bật nào?", answer: "Tổ yến của chúng tôi có màu sắc tự nhiên, không chứa hóa chất độc hại, và giữ nguyên giá trị dinh dưỡng." },
+        { id: 5, question: "Hiện có chương trình khuyến mãi nào không?", answer: "Chúng tôi đang có chương trình giảm giá đặc biệt cho đơn hàng đầu tiên và nhiều ưu đãi khác trong các dịp lễ tết." },
+        { id: 6, question: "Thời gian giao hàng là bao lâu?", answer: "Chúng tôi sẽ giao tổ yến trong khoảng 3 đến 5 ngày làm việc, tùy thuộc vào địa chỉ nhận hàng." },
+        { id: 7, question: "Có thể đổi trả sản phẩm không?", answer: "Bạn có thể đổi trả tổ yến trong vòng 7 ngày nếu sản phẩm bị lỗi hoặc không đúng mô tả." },
+        { id: 8, question: "Những phương thức thanh toán nào được chấp nhận?", answer: "Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, chuyển khoản ngân hàng, và thanh toán khi nhận hàng." }
     ];
-    
-
+   
     const handleClick = (id) => {
         setSelectedQuestion(id);
         setTimeout(() => {
