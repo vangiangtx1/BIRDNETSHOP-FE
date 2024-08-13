@@ -1,39 +1,51 @@
-/* General Chat Button Styles */
+
 .chat-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1000;
 }
-
 .btn-circle {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.428571429;
+    border-radius: 15px;
 }
 
-/* Chat Container Styles */
+.btn-circle.btn-lg {
+    width: 50px;
+    height: 50px;
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.33;
+    border-radius: 25px;
+}
+
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    font-size: 36px;
+    line-height: 1.33;
+    border-radius: 35px;
+}
+
+
 .chat-container {
     z-index: 100;
     position: fixed;
-    right: 20px;
-    bottom: 20px;
+    right: 60px;
+    bottom: 120px;
     width: 360px;
     max-width: 90%;
     display: flex;
     flex-direction: column;
 }
 
-/* Chat Card Styles */
+
 .chat-card {
     display: flex;
     flex-direction: column;
@@ -45,7 +57,7 @@
     overflow: hidden;
 }
 
-/* Chat Header Styles */
+
 .chat-header {
     background-color: #007bff;
     color: white;
@@ -69,7 +81,7 @@
     cursor: pointer;
 }
 
-/* Chat Messages Styles */
+
 .chat-messages {
     flex: 1;
     padding: 10px;
@@ -77,27 +89,23 @@
     overflow-y: auto;
 }
 
-/* Chat Request Styles */
-/* Question Element Styles */
 .chat-request {
     border: none;
     background: #1F6987;
-    font-size: 12px; /* Adjust font size if needed */
+    font-size: 12px; 
     border-radius: 20px;
-    padding: 8px 15px; /* Adjust padding to reduce or increase space around text */
+    padding: 8px 15px; 
     color: #ffffff;
     box-shadow: 0px 4px 6px rgba(109, 156, 203, 0.2);
-    margin-bottom: 5px; /* Adjust this to control the vertical spacing between questions */
+    margin-bottom: 5px; 
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .chat-request:hover {
-    background: #155a74; /* Darken background on hover */
+    background: #155a74; 
 }
 
-
-/* Chat Response Wrapper Styles */
 .chat-response-wrapper {
     background-color: #ffffff;
     border-radius: 20px;
@@ -118,7 +126,6 @@
     border-radius: 0 0 20px 20px;
     padding: 10px;
 }
-/* Chat Input Container Styles */
 .chat-input-container {
     display: flex;
     align-items: center;
@@ -127,10 +134,9 @@
     border-top: 1px solid #ddd;
     border-radius: 0 0 15px 15px;
     position: relative;
-    width: 100%; /* Ensure container width */
+    width: 100%; 
 }
 
-/* Chat Input Field Styles */
 .chat-form-control {
     flex: 1;
     border-radius: 20px;
@@ -138,27 +144,24 @@
     padding: 10px;
     font-size: 14px;
     background: #ffffff;
-    margin-right: 50px; /* Make room for the icon */
-    z-index: 1; /* Ensure the input field is below the icon */
+    margin-right: 50px; 
+    z-index: 1; 
 }
 
-/* Send Icon Styles */
 .icon-send {
     position: absolute;
     right: 15px;
-    font-size: 20px;
+    font-size: 32px;
     color: #007bff;
     cursor: pointer;
     transition: color 0.3s ease;
-    z-index: 2; /* Ensure the icon is above the input field */
+    z-index: 2; 
 }
 
 .icon-send:hover {
     color: #0056b3;
 }
 
-
-/* Misc Styles */
 .bg-white {
     border: 1px solid #E7E7E9;
     font-size: 10px;
@@ -183,4 +186,19 @@
 .describer-recommend {
     display: inline-block;
     color: #070707;
+}
+.chat-user {
+    background-color: #DCF8C6;
+    color: #000;
+    border-radius: 10px;
+    padding: 8px;
+    max-width: 80%;
+}
+
+.chat-bot {
+    background-color: #db3737;
+    color: #000;
+    border-radius: 10px;
+    padding: 8px;
+    max-width: 80%;
 }

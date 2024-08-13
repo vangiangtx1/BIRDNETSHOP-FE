@@ -3,15 +3,23 @@ import './../assets/css/chatbox.css';
 
 const ChatBox = () => {
     const [show, setShow] = useState(false);
+
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [message, setMessage] = useState("");
+    const [chatHistory, setChatHistory] = useState([]); // Added state for chat history
     const answerRef = useRef(null);
 
     const questions = [
         { id: 1, question: "Sản phẩm có xuất xứ từ đâu?", answer: "Sản phẩm được sản xuất tại Nhật Bản." },
         { id: 2, question: "Sản phẩm có chất lượng không?", answer: "Sản phẩm đảm bảo chất lượng và đã được kiểm định." },
         { id: 3, question: "Chính sách bảo hành như thế nào?", answer: "Sản phẩm được bảo hành trong 12 tháng." },
+        { id: 4, question: "Sản phẩm có những tính năng nổi bật nào?", answer: "Sản phẩm có tính năng chống nước, chống sốc, và sử dụng công nghệ hiện đại." },
+        { id: 5, question: "Sản phẩm có chương trình khuyến mãi không?", answer: "Hiện tại, sản phẩm đang có chương trình giảm giá 20% cho đơn hàng đầu tiên." },
+        { id: 6, question: "Thời gian giao hàng là bao lâu?", answer: "Thời gian giao hàng dự kiến là từ 3 đến 5 ngày làm việc." },
+        { id: 7, question: "Có thể đổi trả sản phẩm không?", answer: "Bạn có thể đổi trả sản phẩm trong vòng 7 ngày nếu có lỗi từ nhà sản xuất." },
+        { id: 8, question: "Thanh toán bằng những phương thức nào?", answer: "Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, chuyển khoản, và thanh toán khi nhận hàng." },
     ];
+    
 
     const handleClick = (id) => {
         setSelectedQuestion(id);
@@ -23,18 +31,18 @@ const ChatBox = () => {
     const handleShow = () => {
         setShow(!show);
     };
-
-    const handleSendMessage = () => {
+  const handleSendMessage = () => {
         if (message.trim()) {
-            // Handle sending message logic here
+            const userMessage = { type: 'user', content: message };
+            const botResponse = { type: 'bot', content: "Xin vui lòng liên hệ hotline 123 456 789" };
+            setChatHistory([chatHistory, userMessage, botResponse]);
             setMessage("");
         }
     };
-
     return (
         <>
             <div className="chat-button ml-3 mb-4">
-                <button type="button" onClick={handleShow} className="btn-circle btn-xl">
+                <button type="button" onClick={handleShow} className="btn-xl btn-info btn-circle">
                     <i className="fa fa-comment text-white"></i>
                 </button>
             </div>
@@ -71,6 +79,14 @@ const ChatBox = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {chatHistory.map((chat, index) => (
+                                <div key={index} className={`d-flex p-3 ${chat.type === 'user' ? 'justify-content-end' : ''}`}>
+                                    <div className={`chat-${chat.type}`}>
+                                        {chat.content}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
 
                         <div className="chat-input-container">
