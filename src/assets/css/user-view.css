@@ -321,9 +321,9 @@ p.content{
 }
 
 .img-config.card-img {
-    float: left;
-    width: 220px;
-    height: 290px;
+    /* float: left; */
+    width: 200px;
+    height: 100px;
     object-fit: cover;
     margin: auto;
 }

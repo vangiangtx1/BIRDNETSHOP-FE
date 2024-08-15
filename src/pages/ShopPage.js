@@ -55,14 +55,14 @@ const ShopPage = () => {
             setShow(false)
             return result
         } catch (error) {
-            
+
         }
     }
 
     const handleSearch = async (e) => {
 
     }
-   useEffect(() => {
+    useEffect(() => {
         const getProduct = async () => {
             try {
                 const result = await axiosApiInstance.get(axiosApiInstance.defaults.baseURL + `/api/product`,
@@ -92,7 +92,7 @@ const ShopPage = () => {
             setLoad(true);
             setListCate(result?.data.data.items)
         } catch (error) {
-            
+
         }
     }
 
@@ -107,7 +107,7 @@ const ShopPage = () => {
             setSizeAvail(result?.data?.data.detailInventory)
             console.log("KQ:", result?.data?.data.detailInventory)
         } catch (error) {
-            
+
         }
     }
 
@@ -222,7 +222,7 @@ const ShopPage = () => {
             } else
                 toast.error("Vui lòng chọn đủ thông tin")
         } catch (error) {
-            
+
         }
 
         e.preventDefault()
@@ -295,8 +295,8 @@ const ShopPage = () => {
                                                         <i className="text-warning fa fa-star"></i>
                                                         <i className="text-warning fa fa-star"></i>
                                                         <i className="text-warning fa fa-star"></i>
-                                                        <i className="text-muted fa fa-star"></i>
-                                                        <i className="text-muted fa fa-star"></i>
+                                                        <i className="text-warning fa fa-star"></i>
+                                                        <i className="text-warning fa fa-star"></i>
                                                     </li>
                                                 </ul>
                                                 {
@@ -325,7 +325,7 @@ const ShopPage = () => {
                             <div div="row">
 
                             </div>
-                            <Pagination  refix='shop' size={totalPage}/>
+                            <Pagination refix='shop' size={totalPage} />
                         </div>
 
                     </div>
@@ -346,21 +346,22 @@ const ShopPage = () => {
                                         </div>
 
                                     </div>
-                                    {/* <!-- col end --> */}
-                                    {<div className="col-lg-7 mt-5">
-                                        <div className="card">
-                                            <div className="card-body">
-                                                <h1 className="h2">{productDetail?.name}</h1>
-                                                {/* <p className="h3 py-2 price_txt">{productDetail.at(0)?.infoProduct?.price.toLocaleString('vi', {
+
+                                    {
+                                        <div className="col-lg-7 mt-5">
+                                            <div className="card">
+                                                <div className="card-body">
+                                                    <h1 className="h2">{productDetail?.name}</h1>
+                                                    {/* <p className="h3 py-2 price_txt">{productDetail.at(0)?.infoProduct?.price.toLocaleString('vi', {
                                                 
                                                     style: 'currency',
                                                     currency: 'VND'
                                                 })}</p> */}
-                                                <p className="h3 py-2 price_txt">{productDetail?.price?.toLocaleString("vi", {
-                                                    style: "currency",
-                                                    currency: "VND",
-                                                })}</p>
-                                                {/* <ul className="list-inline">
+                                                    <p className="h3 py-2 price_txt">{productDetail?.price?.toLocaleString("vi", {
+                                                        style: "currency",
+                                                        currency: "VND",
+                                                    })}</p>
+                                                    {/* <ul className="list-inline">
                                                     <li className="list-inline-item">
                                                         <h6>Avaliable Color :</h6>
                                                     </li>
@@ -369,89 +370,84 @@ const ShopPage = () => {
                                                     </li>
                                                 </ul> */}
 
-                                                {
-                                                    productDetail?.detailInventory?.length !== 0 ?
-                                                        <Form>
-                                                            <input type="hidden" name="product-title" value="Activewear" />
-                                                            <div className="row">
-                                                                {/* <div className="col-full">
-                                                            <strong>Màu sắc </strong>
-                                                            {<Form onChange={handleChangeColor}>
-                                                                {Array.from(colorAvail).map((i) =>
-                                                                    <Form.Check
-                                                                        inline
-                                                                        reverse
-                                                                        label={i}
-                                                                        name="group1"
-                                                                        type="radio"
-                                                                        id={i}
-                                                                    />
-                                                                )}
-                                                            </Form>}
-                                                        </div> */}
+                                                    {
+                                                        productDetail?.detailInventory?.length !== 0 ?
+                                                            <Form>
+                                                                <input type="hidden" name="product-title" value="Activewear" />
+                                                                {
+                                                                    productDetail?.isDeleted == false ?
+                                                                        <>
+                                                                            <div className="row">
+                                                                                <div className="col-full">
+                                                                                    <strong>Size</strong>
+                                                                                    {loadSize ? <Form onChange={handleChangeSize}>
+                                                                                        {sizeAvail?.map((i) =>
+                                                                                            <Form.Check
+                                                                                                inline
+                                                                                                reverse
+                                                                                                label={i?.size}
+                                                                                                name="group_size"
+                                                                                                type="radio"
+                                                                                                id={i?.size}
+                                                                                            />
+                                                                                        )}
+                                                                                    </Form>
+                                                                                        : null}
+                                                                                </div>
 
-                                                                <div className="col-full">
-                                                                    <strong>Size</strong>
-                                                                    {loadSize ? <Form onChange={handleChangeSize}>
-                                                                        {sizeAvail?.map((i) =>
-                                                                            <Form.Check
-                                                                                inline
-                                                                                reverse
-                                                                                label={i?.size}
-                                                                                name="group_size"
-                                                                                type="radio"
-                                                                                id={i?.size}
-                                                                            />
-                                                                        )}
-                                                                    </Form>
-                                                                        : null}
-                                                                    {/* {loadSize ? <div>
-                                                                    <strong>Có Size</strong>
-                                                            </div>: <strong>Không Có Size</strong>} */}
-                                                                </div>
+                                                                                <div className="col-full flex align-items-center pb-3">
+                                                                                    <div className="list-inline-item">Số lượng</div>
+                                                                                    <div className="count-input spinner_input">
 
-                                                                <div className="col-full flex align-items-center pb-3">
-                                                                    <div className="list-inline-item">Số lượng</div>
-                                                                    <div className="count-input spinner_input">
+                                                                                        <InputSpinner
+                                                                                            type={'int'}
+                                                                                            precision={0}
+                                                                                            max={100}
+                                                                                            min={1}
+                                                                                            step={1}
+                                                                                            value={1}
+                                                                                            onChange={handleChangeAmount}
+                                                                                            variant={'info'}
+                                                                                            size="sm"
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
 
-                                                                        <InputSpinner
-                                                                            type={'int'}
-                                                                            precision={0}
-                                                                            max={100}
-                                                                            min={1}
-                                                                            step={1}
-                                                                            value={1}
-                                                                            onChange={handleChangeAmount}
-                                                                            variant={'info'}
-                                                                            size="sm"
-                                                                        />
+                                                                            <div className="row pb-3">
+                                                                                <div className="col d-grid">
+                                                                                    <button className="btn btn-success btn-lg"
+                                                                                        onClick={buyNow} value="buy">Mua ngay
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div className="col d-grid">
+                                                                                    <button type="submit" className="btn btn-success btn-lg"
+                                                                                        name="submit" onClick={handleSubmitAdd}>
+                                                                                        Giỏ hàng
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </> :
+                                                                        <div class="col-lg-11 mt-5">
+                                                                            <div class="card">
+                                                                                <div class="card-body" style={{ background: " #f8d7da", color: " #721c24" }}>
+                                                                                    <h6>Sản phẩm tạm thời ngừng kinh doanh</h6>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                }
+
+                                                            </Form> :
+                                                            <div class="col-lg-7 mt-5">
+                                                                <div class="card">
+                                                                    <div class="card-body" style={{ background: " #f8d7da", color: " #721c24" }}>
+                                                                        <h6>Đã Bán Hết</h6>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div className="row pb-3">
-                                                                <div className="col d-grid">
-                                                                    <button className="btn btn-success btn-lg"
-                                                                        onClick={buyNow} value="buy">Mua ngay
-                                                                    </button>
-                                                                </div>
-                                                                <div className="col d-grid">
-                                                                    <button type="submit" className="btn btn-success btn-lg"
-                                                                        name="submit" onClick={handleSubmitAdd}>
-                                                                        Giỏ hàng
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </Form> :
-                                                        <div class="col-lg-7 mt-5">
-                                                            <div class="card">
-                                                                <div class="card-body" style={{ background: " #f8d7da", color: " #721c24" }}>
-                                                                    <h6>Đã Bán Hết</h6>
-                                                                </div>
-                                                            </div>
-                                                        </div>}
+                                                            </div>}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     }
                                 </div>
                             </div>

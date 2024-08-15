@@ -50,28 +50,7 @@ const ProductPage = () => {
 
     const handleShow = (item) => {
         setModalForm(true);
-        // setId(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[0].innerText)
-        // setName(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[1].innerText)
-        // setImage(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[2].firstChild.currentSrc)
-        // setCategory(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[3].innerText)
-        // setSold(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[4].innerText)
-        // setDescribe(parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[5].innerText)
-        // const tag = parents(e.target).find(function (c) {
-        //     return c.tagName === "TR"
-        // }).children[6].innerText;
-
+        setId(item.id)
         setName(item.name)
         setImage(item.linkImg);
         setDescribe(item.description)
@@ -197,6 +176,51 @@ const ProductPage = () => {
         }
     };
 
+    const handleLock = async (item) => {
+        try {
+            const confirm = window.confirm(
+                "Xác nhận khóa sản phẩm ? "
+            );
+            if (confirm) {
+                const re = await axiosApiInstance.post(
+                    axiosApiInstance.defaults.baseURL + `/api/product/lock/${item.id}`
+                );
+                if (re.data.status === 200) {
+                    toast.success(re.data.message);
+                    setChange(!change);
+                    setShow(false);
+                }
+                if (re.data.status === 405) {
+                    toast.warning(re.data.message);
+                }
+            }
+        } catch (error) {
+            toast.error(error);
+        }
+    };
+
+    const handleUnlock = async (item) => {
+        try {
+            const confirm = window.confirm(
+                "Xác nhận mở khóa sản phẩm ? "
+            );
+            if (confirm) {
+                const re = await axiosApiInstance.post(
+                    axiosApiInstance.defaults.baseURL + `/api/product/unlock/${item.id}`
+                );
+                if (re.data.status === 200) {
+                    toast.success(re.data.message);
+                    setChange(!change);
+                    setShow(false);
+                }
+                if (re.data.status === 405) {
+                    toast.warning(re.data.message);
+                }
+            }
+        } catch (error) {
+            toast.error(error);
+        }
+    };
 
 
     const handleSubmit = async (e) => {
@@ -217,7 +241,7 @@ const ProductPage = () => {
                 imageUrl: imageUrl // Thêm URL hình ảnh vào dữ liệu sản phẩm
             };
 
-            const methodForm = editForm ? 'put' : 'post';
+            const methodForm = 'post';
             const urlForm = editForm ? `/api/product/update/${product_id}` : `/api/product/add`;
 
             // Gửi dữ liệu sản phẩm đến backend
@@ -274,7 +298,7 @@ const ProductPage = () => {
             }
         }
         getProduct()
-    }, [page,change]);
+    }, [page, change]);
 
 
     async function getDetails(id) {
@@ -387,12 +411,12 @@ const ProductPage = () => {
                             <table className="table table-image">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="col-1">Mã sản phẩm</th>
+                                        <th scope="col" className="col-2">Mã sản phẩm</th>
                                         <th scope="col" className="col-3">Tên sản phẩm</th>
-                                        <th scope="col" className="col-1">Hình ảnh</th>
-                                        <th scope="col" className="col-1">Giá bán</th>
+                                        <th scope="col" className="col-2">Hình ảnh</th>
+                                        <th scope="col" className="col-2">Danh mục</th>
+                                        <th scope="col" className="col-2">Giá bán</th>
                                         <th scope="col" className="col-1">Mô tả</th>
-                                        {/* <th style={{ display: 'none' }} scope="col" className="col-1">Tag</th> */}
                                         <th scope="col" className="col-2">Tác vụ</th>
                                     </tr>
                                 </thead>
@@ -407,12 +431,12 @@ const ProductPage = () => {
                                                     width="50" height="50" className="img-fluid img-thumbnail"
                                                     alt="Sheep" />
                                             </td>
+                                            <td className="">{item?.categoryName}</td>
                                             <td className="tdPrice">{item?.price?.toLocaleString('vi', {
                                                 style: 'currency',
                                                 currency: 'VND'
                                             })}</td>
                                             <td className="tdDescribe">{item.description}</td>
-                                            {/* <td style={{ display: 'none' }} className="tdDescribe">{item.tag}</td> */}
                                             <td style={{ whiteSpace: 'nowrap' }}>
                                                 <button type="button"
                                                     className="btn btn-outline-primary btn-light btn-sm mx-sm-1 px-lg-2 w-32"
@@ -424,13 +448,20 @@ const ProductPage = () => {
                                                     title="Chỉnh sửa" onClick={() => handleShow(item)}><i className="fa fa-pencil"
                                                         aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" id={item.categoryCode} title={item.categoryName}
-                                                        // onClick={handleDelete}
+                                                {item?.isDeleted == false ?
+                                                    <button type="button" id={item.categoryCode} title={item.categoryName}
+                                                        onClick={() => handleLock(item)}
                                                         className="btn btn-outline-danger btn-light btn-sm mx-sm-1 px-lg-2 w-32"
-                                                    ><i
-                                                        className="fa fa-times"
-                                                        aria-hidden="true"></i>
+                                                    ><i className="fa fa-unlock" aria-hidden="true"></i>
+                                                    </button> :
+                                                    <button type="button" id={item.categoryCode} title={item.categoryName}
+                                                        onClick={() => handleUnlock(item)}
+                                                        className="btn btn-outline-danger btn-light btn-sm mx-sm-1 px-lg-2 w-32"
+                                                    ><i className="fa fa-lock" aria-hidden="true"></i>
                                                     </button>
+                                                }
+
+
                                             </td>
                                         </tr>))}
 
@@ -463,7 +494,7 @@ const ProductPage = () => {
                                             id="select">
                                             <option value="">Danh mục</option>
                                             {listCate.map((cate) => (
-                                                <option value={cate.id} key={cate.id}>{cate.categoryCode}</option>
+                                                <option value={cate.categoryCode} key={cate.categoryCode}>{cate.categoryName}</option>
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
@@ -471,7 +502,7 @@ const ProductPage = () => {
                                         {product_image ? (<ul className="list-images">
                                             <li><img src={product_image} /></li>
                                         </ul>) : null}
-                                        {images.length > 0 ?
+                                        {/* {images.length > 0 ?
                                             <ul className="list-images">
                                                 {
                                                     images.map((image, index) => {
@@ -479,7 +510,7 @@ const ProductPage = () => {
                                                     })
                                                 }
                                             </ul> : null
-                                        }
+                                        } */}
                                         <Form.Control type="file" id="file" onChange={changeHandler}
                                             accept="image/png, image/jpg, image/jpeg" multiple />
                                     </Form.Group>

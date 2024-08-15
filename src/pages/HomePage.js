@@ -15,11 +15,11 @@ import banner2 from "../assets/images/banner2.png"
 const HomePage = () => {
     const navigate = useNavigate()
     const [list, setList] = useState([]);
-    const [loadBestSell, setLoadBestSell] = useState(true);
     const [load, setLoad] = useState(true);
     const [loadSize, setLoadSize] = useState(false);
     const [status, setStatus] = useState(0);
     const [listCate, setListCate] = useState([]);
+    const [loadBestSell, setLoadBestSell] = useState(true);
     const [listBestSeller, setBestSeller] = useState([]);
     const [productDetail, setProductSelected] = useState([]);
     const [imgSelect, setImgSelect] = useState();
