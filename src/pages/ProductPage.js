@@ -424,6 +424,13 @@ const ProductPage = () => {
                                                     title="Chỉnh sửa" onClick={() => handleShow(item)}><i className="fa fa-pencil"
                                                         aria-hidden="true"></i>
                                                 </button>
+                                                <button type="button" id={item.categoryCode} title={item.categoryName}
+                                                        // onClick={handleDelete}
+                                                        className="btn btn-outline-danger btn-light btn-sm mx-sm-1 px-lg-2 w-32"
+                                                    ><i
+                                                        className="fa fa-times"
+                                                        aria-hidden="true"></i>
+                                                    </button>
                                             </td>
                                         </tr>))}
 
